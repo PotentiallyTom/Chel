@@ -1,0 +1,133 @@
+#version 430
+
+layout(local_size_x = 1) in;
+
+layout(binding = 0) buffer BUFF_HyperObjectData {
+    float hyperObjectData[];
+};
+
+layout(binding = 1) buffer BUFF_TransformedPoints {
+    float transformedPoints[];
+};
+
+layout(location = 0) uniform float sliceDepth;
+layout(location = 1) uniform mat4 transform;
+
+vec3 computeIntersection(vec4 a, vec4 b, float w)
+{
+    if(b.w == a.w) return vec3(a.x,a.y,a.z);
+    vec3 intersection;
+    intersection.x = mix(a.x, b.x, (w - a.w) / (b.w - a.w));
+    intersection.y = mix(a.y, b.y, (w - a.w) / (b.w - a.w));
+    intersection.z = mix(a.z, b.z, (w - a.w) / (b.w - a.w));
+
+    return intersection;
+} 
+
+void main() {
+    float W = sliceDepth;
+    int facetIndex = int(gl_GlobalInvocationID.x) * 16; // 4 * vec4
+    int triIndex = int(gl_GlobalInvocationID.x) * 18; // 6 * vec3
+
+    vec4 A = vec4(hyperObjectData[facetIndex], hyperObjectData[facetIndex + 1], hyperObjectData[facetIndex + 2], hyperObjectData[facetIndex + 3]);
+    vec4 B = vec4(hyperObjectData[facetIndex + 4], hyperObjectData[facetIndex + 5], hyperObjectData[facetIndex + 6], hyperObjectData[facetIndex + 7]);
+    vec4 C = vec4(hyperObjectData[facetIndex + 8], hyperObjectData[facetIndex + 9], hyperObjectData[facetIndex + 10], hyperObjectData[facetIndex + 11]);
+    vec4 D = vec4(hyperObjectData[facetIndex + 12], hyperObjectData[facetIndex + 13], hyperObjectData[facetIndex + 14], hyperObjectData[facetIndex + 15]);
+
+    A = A * transform;
+    B = B * transform;
+    C = C * transform;
+    D = D * transform;
+
+    vec4 above[4];
+    vec4 below[4];
+    int aboveCount = 0;
+    int belowCount = 0;
+
+    if(A.w > W){
+        above[aboveCount] = A;
+        aboveCount++;
+        transformedPoints[triIndex + 9] = A.w;
+    }
+    else{
+        below[belowCount] = A;
+        belowCount++;
+    }
+    if (B.w > W){
+        above[aboveCount] = B;
+        aboveCount++;
+        transformedPoints[triIndex + 10] = B.w;
+    }
+    else {
+        below[belowCount] = B;
+        belowCount++;
+    }
+    if (C.w > W){
+        above[aboveCount] = C;
+        aboveCount++;
+        transformedPoints[triIndex + 11] = C.w;
+    } 
+    else{
+        below[belowCount] = C;
+        belowCount++;
+    }
+    if (D.w > W){
+        above[aboveCount] = D;
+        aboveCount++;
+        transformedPoints[triIndex + 12] = D.w;
+    } 
+    else {
+        below[belowCount] = D;
+        belowCount++;
+    }
+
+    vec3 t1 = vec3(0,0,0);
+    vec3 t2 = t1;
+    vec3 t3 = t1;
+    vec3 t4 = t1;
+    vec3 t5 = t1;
+    vec3 t6 = t1;
+
+    if(aboveCount == 3)
+    {
+        t1 = computeIntersection(above[0],below[0], W);
+        t2 = computeIntersection(above[1],below[0], W);
+        t3 = computeIntersection(above[2],below[0], W);
+    }
+    else if(aboveCount == 2)
+    {
+        t1 = computeIntersection(above[0],below[0], W);
+        t2 = computeIntersection(above[0],below[1], W);
+        t3 = computeIntersection(above[1],below[0], W);
+        t4 = computeIntersection(above[1],below[1], W);
+        t5 = t2;
+        t6 = t3;
+    }
+    else if(aboveCount == 1)
+    {
+        t1 = computeIntersection(above[0],below[0], W);
+        t2 = computeIntersection(above[0],below[1], W);
+        t3 = computeIntersection(above[0],below[2], W);
+    }
+
+    // transformedPoints[triIndex] = transform[0][0];
+    transformedPoints[triIndex] = t1.x;
+    transformedPoints[triIndex + 1] = t1.y;
+    transformedPoints[triIndex + 2] = t1.z;
+    transformedPoints[triIndex + 3] = t2.x;
+    transformedPoints[triIndex + 4] = t2.y;
+    transformedPoints[triIndex + 5] = t2.z;
+    transformedPoints[triIndex + 6] = t3.x;
+    transformedPoints[triIndex + 7] = t3.y;
+    transformedPoints[triIndex + 8] = t3.z;
+
+    transformedPoints[triIndex + 9] = t4.x;
+    transformedPoints[triIndex + 10] = t4.y;
+    transformedPoints[triIndex + 11] = t4.z;
+    transformedPoints[triIndex + 12] = t5.x;
+    transformedPoints[triIndex + 13] = t5.y;
+    transformedPoints[triIndex + 14] = t5.z;
+    transformedPoints[triIndex + 15] = t6.x;
+    transformedPoints[triIndex + 16] = t6.y;
+    transformedPoints[triIndex + 17] = t6.z;
+ }
