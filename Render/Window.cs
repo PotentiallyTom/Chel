@@ -157,5 +157,4 @@ public class RenderWindow : GameWindow
     // Missing critical analysis
     // Why is it techinically complex?
     // Push it and make it significant
-    // Test
 }
