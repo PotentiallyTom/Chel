@@ -20,6 +20,7 @@ public class RenderWindow : GameWindow
             projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(0.7f, (float)width / (float)height, 0.1f, 100.0f);
             modelMatrix = Matrix4.Identity;
         }
+        Renderpack renderpack;
         int width;
         int height;
         Vector3 cameraPosition = new Vector3(0f,0f,3f);
@@ -53,13 +54,14 @@ public class RenderWindow : GameWindow
             base.OnLoad();
             GL.ClearColor(0.2f,0.2f,0.2f,1.0f);
 
+            Renderpack renderpack = Renderpack.Load(@"RenderPacks\Slicer.yml");
             @object = new StylParser().ParseFile(@"Models\tet.styl");
-            // @object = new StylParser().ParseFile(@"Chel.Parse.Tests\Data\2tet.styl");
 
             vertices = @object.AsArray();       
-            VertexBufferLength = vertices.Length * 9 / 8;
-            vertexFragmentShader = new VertexFragmentShader(@"Shaders\passthrough.vert", @"Shaders\yellow.frag");
-            computeShader = new ComputeShader(@"Shaders\slice.comp");
+            VertexBufferLength = (int)(vertices.Length * renderpack.OutputRatio);
+            Console.WriteLine(VertexBufferLength);
+            vertexFragmentShader = renderpack.VertexFragmentShader;
+            computeShader = renderpack.ComputeShader;
 
             // transformMatrixLocation = GL.GetUniformLocation(shader.Handle, "transformMatrix");
             // GL.UniformMatrix4(transformMatrixLocation, false, ref viewModelProjectMatrix);

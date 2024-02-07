@@ -1,0 +1,5 @@
+OutputRatio: 1.5
+VertexShaderPath: "path/to/vertex.shader"
+FragmentShaderPath: "path/to/fragment.shader"
+ComputeShaderPath: "path/to/compute.shader"
+PrimitiveType: "Triangles"
