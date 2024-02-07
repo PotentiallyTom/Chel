@@ -31,7 +31,6 @@ public class RenderWindow : GameWindow
         Matrix4 viewMatrix {get => Matrix4.LookAt(cameraPosition, cameraTarget, cameraUp);}
         Matrix4 projectionMatrix;
         Matrix4 modelMatrix;
-
         float[] vertices;
         int VertexArrayObject;
         int FacetBufferObject;
@@ -54,7 +53,7 @@ public class RenderWindow : GameWindow
             base.OnLoad();
             GL.ClearColor(0.2f,0.2f,0.2f,1.0f);
 
-            Renderpack renderpack = Renderpack.Load(@"RenderPacks\Slicer.yml");
+            renderpack = Renderpack.Load(@"RenderPacks\Slicer.yml");
             @object = new StylParser().ParseFile(@"Models\tet.styl");
 
             vertices = @object.AsArray();       
@@ -96,12 +95,6 @@ public class RenderWindow : GameWindow
             base.OnRenderFrame(args);
             GL.Clear(ClearBufferMask.ColorBufferBit);
 
-
-            // Console.WriteLine("x: " + x);
-            // GL.GetUniform(computeShader.Handle,x,out float y);
-            // Console.WriteLine("y: " + y);
-
-
             vertexFragmentShader.Use();
             computeShader.Use();
 
@@ -140,10 +133,12 @@ public class RenderWindow : GameWindow
             // }
             // Console.WriteLine("-----------------");
 
-            Console.WriteLine("z: " + outputDebug[0]);
+            // Console.WriteLine("z: " + outputDebug[0]);
+            // Console.WriteLine(GL.GetShaderInfoLog(vertexFragmentShader.Handle));
+            // Console.WriteLine(GL.GetShaderInfoLog(computeShader.Handle));
 
             GL.BindVertexArray(VertexArrayObject);
-            GL.DrawArrays(PrimitiveType.Triangles,0,outputDebug.Length);
+            GL.DrawArrays(renderpack.PrimitiveType,0,outputDebug.Length);
             SwapBuffers();
         }
 
