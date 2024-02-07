@@ -60,8 +60,6 @@ public class RenderWindow : GameWindow
 
             VertexBufferLength = (int)(vertices.Length * renderpack.OutputRatio);
 
-            // Console.WriteLine(VertexBufferLength);
-
             vertexFragmentShader = renderpack.VertexFragmentShader;
             computeShader = renderpack.ComputeShader;
 
@@ -89,13 +87,6 @@ public class RenderWindow : GameWindow
             GL.BindVertexArray(VertexArrayObject);
             GL.VertexAttribPointer(0,3,VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
             GL.EnableVertexAttribArray(0);
-
-            vertexFragmentShader.Use();
-            computeShader.Use();
-
-            GL.DispatchCompute(vertices.Length / 16, 1, 1);
-            GL.MemoryBarrier(MemoryBarrierFlags.AllBarrierBits);
-
         }
 
         protected override void OnRenderFrame(FrameEventArgs args)
@@ -110,15 +101,15 @@ public class RenderWindow : GameWindow
             // GL.Uniform1(wSliceLoc,1,new float[] {0.5f});
             GL.Uniform1(wSliceLoc,1,new float[] {new Random().NextSingle()});
 
-            // Matrix4 transfom4 = new Matrix4(
-            //     1,0,0,0,
-            //     0,1,0,0,
-            //     0,0,1,0,
-            //     0,0,0,1
-            // );
+            Matrix4 transfom4 = new Matrix4(
+                1,0,0,0,
+                0,1,0,0,
+                0,0,1,0,
+                0,0,0,1
+            );
 
-            // int transformLoc = GL.GetUniformLocation(computeShader.Handle, "transform");
-            // GL.UniformMatrix4(transformLoc, false, ref transfom4);
+            int transformLoc = GL.GetUniformLocation(computeShader.Handle, "transform");
+            GL.UniformMatrix4(transformLoc, false, ref transfom4);
 
             GL.DispatchCompute(vertices.Length / 16,1,1);
             GL.MemoryBarrier(MemoryBarrierFlags.AllBarrierBits);
