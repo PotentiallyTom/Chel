@@ -2,16 +2,16 @@
 
 layout(local_size_x = 1) in;
 
-layout(binding = 0) buffer BUFF_HyperObjectData {
+layout(binding = 1) buffer BUFF_HyperObjectData {
     float hyperObjectData[];
 };
 
-layout(binding = 1) buffer BUFF_TransformedPoints {
+layout(binding = 2) buffer BUFF_TransformedPoints {
     float transformedPoints[];
 };
 
-layout(location = 0) uniform float sliceDepth;
-layout(location = 1) uniform mat4 transform;
+layout(location = 3) uniform float sliceDepth;
+// layout(location = 4) uniform mat4 transform;
 
 vec3 computeIntersection(vec4 a, vec4 b, float w)
 {
@@ -34,10 +34,10 @@ void main() {
     vec4 C = vec4(hyperObjectData[facetIndex + 8], hyperObjectData[facetIndex + 9], hyperObjectData[facetIndex + 10], hyperObjectData[facetIndex + 11]);
     vec4 D = vec4(hyperObjectData[facetIndex + 12], hyperObjectData[facetIndex + 13], hyperObjectData[facetIndex + 14], hyperObjectData[facetIndex + 15]);
 
-    A = A * transform;
-    B = B * transform;
-    C = C * transform;
-    D = D * transform;
+    // A = A * transform;
+    // B = B * transform;
+    // C = C * transform;
+    // D = D * transform;
 
     vec4 above[4];
     vec4 below[4];

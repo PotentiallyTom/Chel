@@ -56,9 +56,12 @@ public class RenderWindow : GameWindow
             renderpack = Renderpack.Load(@"RenderPacks\Slicer.yml");
             @object = new StylParser().ParseFile(@"Models\tet.styl");
 
-            vertices = @object.AsArray();       
+            vertices = @object.AsArray();     
+
             VertexBufferLength = (int)(vertices.Length * renderpack.OutputRatio);
-            Console.WriteLine(VertexBufferLength);
+
+            // Console.WriteLine(VertexBufferLength);
+
             vertexFragmentShader = renderpack.VertexFragmentShader;
             computeShader = renderpack.ComputeShader;
 
@@ -68,19 +71,24 @@ public class RenderWindow : GameWindow
             FacetBufferObject = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ShaderStorageBuffer, FacetBufferObject);
             GL.BufferData(BufferTarget.ShaderStorageBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.StaticDraw);
-            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 0, FacetBufferObject);
+            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 1, FacetBufferObject);
 
             TriBufferObject = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ShaderStorageBuffer, TriBufferObject);
             GL.BufferData(BufferTarget.ShaderStorageBuffer, VertexBufferLength * sizeof(float), IntPtr.Zero, BufferUsageHint.DynamicDraw);
-            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 1, TriBufferObject);
+            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 2, TriBufferObject);
 
             // ConstBufferObject = GL.GenBuffer();
             // GL.BindBuffer(BufferTarget.ShaderStorageBuffer, ConstBufferObject);
             // GL.BufferData(BufferTarget.ShaderStorageBuffer, sizeof(float), new float[] {0}, BufferUsageHint.StreamDraw);
             // GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 2, ConstBufferObject);
 
+            GL.BindBuffer(BufferTarget.ArrayBuffer, TriBufferObject);
+
             VertexArrayObject = GL.GenVertexArray();
+            GL.BindVertexArray(VertexArrayObject);
+            GL.VertexAttribPointer(0,3,VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
+            GL.EnableVertexAttribArray(0);
 
             vertexFragmentShader.Use();
             computeShader.Use();
@@ -95,50 +103,34 @@ public class RenderWindow : GameWindow
             base.OnRenderFrame(args);
             GL.Clear(ClearBufferMask.ColorBufferBit);
 
-            vertexFragmentShader.Use();
+            
             computeShader.Use();
 
             int wSliceLoc = GL.GetUniformLocation(computeShader.Handle,"sliceDepth");
-            GL.Uniform1(wSliceLoc,1,new float[] {0.25f});
+            // GL.Uniform1(wSliceLoc,1,new float[] {0.5f});
+            GL.Uniform1(wSliceLoc,1,new float[] {new Random().NextSingle()});
 
-            Matrix4 transfom4 = new Matrix4(
-                1,0,0,0,
-                0,1,0,0,
-                0,0,1,0,
-                0,0,0,1
-            );
+            // Matrix4 transfom4 = new Matrix4(
+            //     1,0,0,0,
+            //     0,1,0,0,
+            //     0,0,1,0,
+            //     0,0,0,1
+            // );
 
-            int transformLoc = GL.GetUniformLocation(computeShader.Handle, "transform");
-            GL.UniformMatrix4(transformLoc, false, ref transfom4);
+            // int transformLoc = GL.GetUniformLocation(computeShader.Handle, "transform");
+            // GL.UniformMatrix4(transformLoc, false, ref transfom4);
 
             GL.DispatchCompute(vertices.Length / 16,1,1);
             GL.MemoryBarrier(MemoryBarrierFlags.AllBarrierBits);
             
-            float[] outputDebug = new float[VertexBufferLength];
-            GL.BindBuffer(BufferTarget.ShaderStorageBuffer, TriBufferObject);
-            GL.GetBufferSubData(BufferTarget.ShaderStorageBuffer,0,VertexBufferLength * sizeof(float), outputDebug);
-
-            GL.BindBuffer(BufferTarget.ArrayBuffer,TriBufferObject);
-            
-            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
-            GL.EnableVertexAttribArray(0);
-
-            // for(int i = 0 ; i < outputDebug.Length ; i+= 9)
-            // {
-            //     for(int j = 0 ; j < 9 ; j+= 3)
-            //     {
-            //         Console.WriteLine($"{outputDebug[i + j]} {outputDebug[i + j + 1]} {outputDebug[i + j + 2]}");
-            //     }
-            //     Console.WriteLine();
-            // }
-            // Console.WriteLine("-----------------");
-
-            // Console.WriteLine("z: " + outputDebug[0]);
-            // Console.WriteLine(GL.GetShaderInfoLog(vertexFragmentShader.Handle));
-            // Console.WriteLine(GL.GetShaderInfoLog(computeShader.Handle));
+            vertexFragmentShader.Use();
+            // float[] outputDebug = new float[VertexBufferLength];
+            // GL.BindBuffer(BufferTarget.ShaderStorageBuffer, TriBufferObject);
+            // GL.GetBufferSubData(BufferTarget.ShaderStorageBuffer,0,VertexBufferLength * sizeof(float), outputDebug);
 
             GL.BindVertexArray(VertexArrayObject);
-            GL.DrawArrays(renderpack.PrimitiveType,0,outputDebug.Length);
+
+            GL.DrawArrays(renderpack.PrimitiveType,0,(int)(vertices.Length * renderpack.OutputRatio));
             SwapBuffers();
         }
 
