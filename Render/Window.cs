@@ -54,7 +54,7 @@ public class RenderWindow : GameWindow
             GL.ClearColor(0.2f,0.2f,0.2f,1.0f);
 
             renderpack = Renderpack.Load(@"RenderPacks\Slicer.yml");
-            @object = new StylParser().ParseFile(@"Models\tet.styl");
+            @object = new StylParser().ParseFile(@"Models\normalhypercube.styl");
 
             vertices = @object.AsArray();     
 

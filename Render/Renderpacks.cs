@@ -21,7 +21,13 @@ public readonly struct Renderpack
         string data = File.ReadAllText(path);
         inputModel parsed = new DeserializerBuilder().Build().Deserialize<inputModel>(data);
 
-        return new Renderpack(parsed.OutputRatio, parsed.VertexShaderPath ?? "", parsed.FragmentShaderPath ?? "", parsed.ComputeShaderPath ?? "", Enum.Parse<PrimitiveType>(parsed.PrimitiveType ?? ""));
+        return new Renderpack(
+            parsed.OutputRatio, 
+            parsed.VertexShaderPath ?? "", 
+            parsed.FragmentShaderPath ?? "", 
+            parsed.ComputeShaderPath ?? "", 
+            Enum.Parse<PrimitiveType>(parsed.PrimitiveType ?? "")
+        );
     }
 
     public Renderpack(
@@ -29,7 +35,8 @@ public readonly struct Renderpack
         string vertexShaderPath, 
         string fragmentShaderPath, 
         string computeShaderPath, 
-        PrimitiveType primitiveType)
+        PrimitiveType primitiveType
+    )
     {
         OutputRatio = outputRatio;
         VertexFragmentShader = new VertexFragmentShader(vertexShaderPath, fragmentShaderPath);

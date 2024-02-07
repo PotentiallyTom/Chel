@@ -2,4 +2,4 @@ OutputRatio: 1.125
 VertexShaderPath: "Shaders\\Vertex\\passthrough.vert"
 FragmentShaderPath: "Shaders\\Fragment\\yellow.frag"
 ComputeShaderPath: "Shaders\\Compute\\slice.comp"
-PrimitiveType: "Triangles"
+PrimitiveType: Triangles
