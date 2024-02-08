@@ -53,6 +53,7 @@ public class RenderWindow : GameWindow
             base.OnLoad();
             GL.ClearColor(0.2f,0.2f,0.2f,1.0f);
 
+            // renderpack = Renderpack.Load(@"RenderPacks\OrthographicWireframe.yml");
             renderpack = Renderpack.Load(@"RenderPacks\Slicer.yml");
             @object = new StylParser().ParseFile(@"Models\normalhypercube.styl");
 
@@ -63,7 +64,7 @@ public class RenderWindow : GameWindow
             vertexFragmentShader = renderpack.VertexFragmentShader;
             computeShader = renderpack.ComputeShader;
 
-            // transformMatrixLocation = GL.GetUniformLocation(shader.Handle, "transformMatrix");
+            // transformMatrixLocation = GL.GetUniformLocation(computeShader.Handle, "transformMatrix");
             // GL.UniformMatrix4(transformMatrixLocation, false, ref viewModelProjectMatrix);
 
             FacetBufferObject = GL.GenBuffer();
@@ -89,6 +90,7 @@ public class RenderWindow : GameWindow
             GL.EnableVertexAttribArray(0);
         }
 
+        float demo_sin = 0;
         protected override void OnRenderFrame(FrameEventArgs args)
         {
             base.OnRenderFrame(args);
@@ -99,14 +101,27 @@ public class RenderWindow : GameWindow
 
             int wSliceLoc = GL.GetUniformLocation(computeShader.Handle,"sliceDepth");
             // GL.Uniform1(wSliceLoc,1,new float[] {0.5f});
-            GL.Uniform1(wSliceLoc,1,new float[] {new Random().NextSingle()});
+            GL.Uniform1(wSliceLoc,1,new float[] {(float)Math.Sin(demo_sin) * 0.5f});
+            demo_sin += 0.01f;
+            // Matrix4 transfom4 = new Matrix4(
+            //     1,0,0,0,
+            //     0,1,0,0,
+            //     0,0,1,0,
+            //     0,0,0,1
+            // );
 
-            Matrix4 transfom4 = new Matrix4(
-                1,0,0,0,
-                0,1,0,0,
-                0,0,1,0,
-                0,0,0,1
-            );
+            float nsin = (float)Math.Sin(demo_sin);
+            float ncos = (float)Math.Cos(demo_sin);
+            Matrix4 rotXW = new Matrix4(
+                    ncos, 0,0, -nsin, 
+                    0,1,0,0,
+                    0,0,1,0,
+                    nsin, 0, 0, ncos
+                );
+
+            Matrix4 transfom4 = Matrix4.CreateRotationX((float)Math.Sin(demo_sin * 1.5)) 
+                * Matrix4.CreateRotationY((float)Math.Sin(demo_sin * 3.33))
+                * rotXW;
 
             int transformLoc = GL.GetUniformLocation(computeShader.Handle, "transform");
             GL.UniformMatrix4(transformLoc, false, ref transfom4);
