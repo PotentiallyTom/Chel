@@ -40,21 +40,77 @@ public class RenderWindow : GameWindow
         VertexFragmentShader vertexFragmentShader;
         ComputeShader computeShader;
         HyperObject @object;
-        int transformMatrixLocation;
-
         Matrix4 viewModelProjectMatrix;
+        Matrix4 stateFrameTransformMatrix = Matrix4.Identity;
         protected override void OnUpdateFrame(FrameEventArgs args)
         {
             base.OnUpdateFrame(args);
+
+            if(MouseState.IsButtonDown(MouseButton.Left))
+            {
+                float sensitivity = 0.001f;
+                Vector2 mouseDelta = MouseState.Delta;
+
+                bool isShift = KeyboardState.IsKeyPressed(Keys.LeftShift);
+
+                // default rotate in z, shift means a rotation in w
+
+                float sinX = (float)Math.Sin(mouseDelta.X * sensitivity);
+                float cosX = (float)Math.Cos(mouseDelta.X * sensitivity);
+                float sinY = (float)Math.Sin(mouseDelta.Y * sensitivity);
+                float cosY = (float)Math.Cos(mouseDelta.Y * sensitivity);
+
+                if(isShift)
+                {
+                    Matrix4 rotXZ = new Matrix4(
+                        cosX,0,-sinX,0,
+                        0,1,0,0,
+                        sinX,0,cosX,0,
+                        0,0,0,1
+                    );
+                    Matrix4 rotYZ = new Matrix4(
+                        1,0,0,0,
+                        0,cosY,-sinY,0,
+                        0,sinY,cosY,0,
+                        0,0,0,1
+                    );
+                    stateFrameTransformMatrix *= rotXZ;
+                }
+                else
+                {
+                    Matrix4 rotXW = new Matrix4(
+                        cosX, 0,0, -sinX, 
+                        0,1,0,0,
+                        0,0,1,0,
+                        sinX, 0, 0, cosX
+                    );
+                    
+                    Matrix4 rotYW = new Matrix4(
+                        1,0,0,0,
+                        0,cosX,0,-sinY,
+                        0,0,1,0,
+                        0,sinY,0,cosY
+                    );
+                    stateFrameTransformMatrix *= rotXW;
+                }
+            }
+            else
+            {
+                // stateFrameTransformMatrix = Matrix4.Identity;
+            }
+            Console.WriteLine(stateFrameTransformMatrix);
+            Console.WriteLine();
+
         }
 
         protected override void OnLoad()
         {
             base.OnLoad();
+
             GL.ClearColor(0.2f,0.2f,0.2f,1.0f);
 
-            // renderpack = Renderpack.Load(@"RenderPacks\OrthographicWireframe.yml");
-            renderpack = Renderpack.Load(@"RenderPacks\Slicer.yml");
+            renderpack = Renderpack.Load(@"RenderPacks\OrthographicWireframe.yml");
+            // renderpack = Renderpack.Load(@"RenderPacks\Slicer.yml");
             @object = new StylParser().ParseFile(@"Models\normalhypercube.styl");
 
             vertices = @object.AsArray();     
@@ -101,7 +157,7 @@ public class RenderWindow : GameWindow
 
             int wSliceLoc = GL.GetUniformLocation(computeShader.Handle,"sliceDepth");
             // GL.Uniform1(wSliceLoc,1,new float[] {0.5f});
-            GL.Uniform1(wSliceLoc,1,new float[] {(float)Math.Sin(demo_sin) * 0.5f});
+            // GL.Uniform1(wSliceLoc,1,new float[] {(float)Math.Sin(demo_sin) * 0.5f});
             demo_sin += 0.01f;
             // Matrix4 transfom4 = new Matrix4(
             //     1,0,0,0,
@@ -110,18 +166,7 @@ public class RenderWindow : GameWindow
             //     0,0,0,1
             // );
 
-            float nsin = (float)Math.Sin(demo_sin);
-            float ncos = (float)Math.Cos(demo_sin);
-            Matrix4 rotXW = new Matrix4(
-                    ncos, 0,0, -nsin, 
-                    0,1,0,0,
-                    0,0,1,0,
-                    nsin, 0, 0, ncos
-                );
-
-            Matrix4 transfom4 = Matrix4.CreateRotationX((float)Math.Sin(demo_sin * 1.5)) 
-                * Matrix4.CreateRotationY((float)Math.Sin(demo_sin * 3.33))
-                * rotXW;
+            Matrix4 transfom4 = stateFrameTransformMatrix;
 
             int transformLoc = GL.GetUniformLocation(computeShader.Handle, "transform");
             GL.UniformMatrix4(transformLoc, false, ref transfom4);
@@ -152,4 +197,14 @@ public class RenderWindow : GameWindow
     // Missing critical analysis
     // Why is it techinically complex?
     // Push it and make it significant
+
+    // How is it useful?
+    // How can I demostrate in the report that it's useful?
+    // WRapping it up
+    // "I spent 2 terms making a render it has these properties"
+    // Talk about open sourcing it
+    // Installation and running stuff
+    // More visualisation stuff - axis 
+    // How can you orient yourself in the 4D space?
+    // Colour - know where you are based on colour
 }
