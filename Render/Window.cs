@@ -42,66 +42,7 @@ public class RenderWindow : GameWindow
         HyperObject @object;
         Matrix4 viewModelProjectMatrix;
         Matrix4 stateFrameTransformMatrix = Matrix4.Identity;
-        protected override void OnUpdateFrame(FrameEventArgs args)
-        {
-            base.OnUpdateFrame(args);
-
-            if(MouseState.IsButtonDown(MouseButton.Left))
-            {
-                float sensitivity = 0.001f;
-                Vector2 mouseDelta = MouseState.Delta;
-
-                bool isShift = KeyboardState.IsKeyPressed(Keys.LeftShift);
-
-                // default rotate in z, shift means a rotation in w
-
-                float sinX = (float)Math.Sin(mouseDelta.X * sensitivity);
-                float cosX = (float)Math.Cos(mouseDelta.X * sensitivity);
-                float sinY = (float)Math.Sin(mouseDelta.Y * sensitivity);
-                float cosY = (float)Math.Cos(mouseDelta.Y * sensitivity);
-
-                if(isShift)
-                {
-                    Matrix4 rotXZ = new Matrix4(
-                        cosX,0,-sinX,0,
-                        0,1,0,0,
-                        sinX,0,cosX,0,
-                        0,0,0,1
-                    );
-                    Matrix4 rotYZ = new Matrix4(
-                        1,0,0,0,
-                        0,cosY,-sinY,0,
-                        0,sinY,cosY,0,
-                        0,0,0,1
-                    );
-                    stateFrameTransformMatrix *= rotXZ;
-                }
-                else
-                {
-                    Matrix4 rotXW = new Matrix4(
-                        cosX, 0,0, -sinX, 
-                        0,1,0,0,
-                        0,0,1,0,
-                        sinX, 0, 0, cosX
-                    );
-                    
-                    Matrix4 rotYW = new Matrix4(
-                        1,0,0,0,
-                        0,cosX,0,-sinY,
-                        0,0,1,0,
-                        0,sinY,0,cosY
-                    );
-                    stateFrameTransformMatrix *= rotXW;
-                }
-            }
-            else
-            {
-                // stateFrameTransformMatrix = Matrix4.Identity;
-            }
-            Console.WriteLine(stateFrameTransformMatrix);
-            Console.WriteLine();
-
-        }
+        float sliceDepth;
 
         protected override void OnLoad()
         {
@@ -146,7 +87,6 @@ public class RenderWindow : GameWindow
             GL.EnableVertexAttribArray(0);
         }
 
-        float demo_sin = 0;
         protected override void OnRenderFrame(FrameEventArgs args)
         {
             base.OnRenderFrame(args);
@@ -156,9 +96,8 @@ public class RenderWindow : GameWindow
             computeShader.Use();
 
             int wSliceLoc = GL.GetUniformLocation(computeShader.Handle,"sliceDepth");
-            // GL.Uniform1(wSliceLoc,1,new float[] {0.5f});
-            // GL.Uniform1(wSliceLoc,1,new float[] {(float)Math.Sin(demo_sin) * 0.5f});
-            demo_sin += 0.01f;
+            GL.Uniform1(wSliceLoc,1,new float[] {sliceDepth});
+
             // Matrix4 transfom4 = new Matrix4(
             //     1,0,0,0,
             //     0,1,0,0,
@@ -168,8 +107,8 @@ public class RenderWindow : GameWindow
 
             Matrix4 transfom4 = stateFrameTransformMatrix;
 
-            int transformLoc = GL.GetUniformLocation(computeShader.Handle, "transform");
-            GL.UniformMatrix4(transformLoc, false, ref transfom4);
+            int compTransformLoc = GL.GetUniformLocation(computeShader.Handle, "transform");
+            GL.UniformMatrix4(compTransformLoc, false, ref transfom4);
 
             GL.DispatchCompute(vertices.Length / 16,1,1);
             GL.MemoryBarrier(MemoryBarrierFlags.AllBarrierBits);
@@ -178,11 +117,48 @@ public class RenderWindow : GameWindow
             // float[] outputDebug = new float[VertexBufferLength];
             // GL.BindBuffer(BufferTarget.ShaderStorageBuffer, TriBufferObject);
             // GL.GetBufferSubData(BufferTarget.ShaderStorageBuffer,0,VertexBufferLength * sizeof(float), outputDebug);
-
+            int vertTransformLoc = GL.GetUniformLocation(vertexFragmentShader.Handle, "transform");
+            GL.UniformMatrix4(vertTransformLoc, false, ref viewModelProjectMatrix);
             GL.BindVertexArray(VertexArrayObject);
 
             GL.DrawArrays(renderpack.PrimitiveType,0,(int)(vertices.Length * renderpack.OutputRatio));
             SwapBuffers();
+        }
+        protected override void OnUpdateFrame(FrameEventArgs args)
+        {
+            base.OnUpdateFrame(args);
+            if(KeyboardState.IsKeyPressed(Keys.Up)) sliceDepth += 0.1f;
+            if(KeyboardState.IsKeyPressed(Keys.Down)) sliceDepth -= 0.1f;
+            if(MouseState.IsButtonDown(MouseButton.Left))
+            {
+                float sensitivity = 0.01f;
+                Vector2 mouseDelta = MouseState.Delta;
+
+                bool isShift = KeyboardState.IsKeyPressed(Keys.LeftShift);
+
+                // default rotate in z, shift means a rotation in w
+
+                float sinX = (float)Math.Sin(mouseDelta.X * sensitivity);
+                float cosX = (float)Math.Cos(mouseDelta.X * sensitivity);
+                float sinY = (float)Math.Sin(mouseDelta.Y * sensitivity);
+                float cosY = (float)Math.Cos(mouseDelta.Y * sensitivity);
+
+                Matrix4 rotYZ;
+
+                Matrix4 rotXZ;
+
+                Matrix4.CreateRotationX(mouseDelta.Y * sensitivity, out rotYZ);
+                Matrix4.CreateRotationY(mouseDelta.X * sensitivity, out rotXZ);
+
+                modelMatrix *= rotXZ *= rotYZ;
+            }
+            else if(MouseState.IsButtonReleased(MouseButton.Left))
+            {
+                // modelMatrix = Matrix4.Identity;
+                
+            }
+
+            viewModelProjectMatrix =  viewMatrix  * projectionMatrix * modelMatrix ;
         }
 
         protected override void OnResize(ResizeEventArgs e)
@@ -191,6 +167,7 @@ public class RenderWindow : GameWindow
             GL.Viewport(0,0,e.Width,e.Height);
             width = e.Width;
             height = e.Height;
+            projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
         }
     // Create a new 4D object
     // start filling in gaps by writing
