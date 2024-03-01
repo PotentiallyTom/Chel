@@ -127,36 +127,29 @@ public class RenderWindow : GameWindow
         protected override void OnUpdateFrame(FrameEventArgs args)
         {
             base.OnUpdateFrame(args);
-            if(KeyboardState.IsKeyPressed(Keys.Up)) sliceDepth += 0.1f;
-            if(KeyboardState.IsKeyPressed(Keys.Down)) sliceDepth -= 0.1f;
+
+            Vector2 mouseDelta = MouseState.Delta;
+            float rotationSensitivity = 0.01f;
+            float scaleSensitivity = -0.05f;
+
+            // 3D world transformations
+            float scaleFactor = (float)Math.Exp(MouseState.ScrollDelta.Y * scaleSensitivity);
+            Matrix4.CreateScale(scaleFactor, out Matrix4 scale);
+
+            modelMatrix = scale * modelMatrix;
             if(MouseState.IsButtonDown(MouseButton.Left))
             {
-                float sensitivity = 0.01f;
-                Vector2 mouseDelta = MouseState.Delta;
+                Matrix4.CreateRotationX(mouseDelta.Y * rotationSensitivity, out Matrix4 rotYZ);
+                Matrix4.CreateRotationY(mouseDelta.X * rotationSensitivity, out Matrix4 rotXZ);
 
-                bool isShift = KeyboardState.IsKeyPressed(Keys.LeftShift);
-
-                // default rotate in z, shift means a rotation in w
-
-                float sinX = (float)Math.Sin(mouseDelta.X * sensitivity);
-                float cosX = (float)Math.Cos(mouseDelta.X * sensitivity);
-                float sinY = (float)Math.Sin(mouseDelta.Y * sensitivity);
-                float cosY = (float)Math.Cos(mouseDelta.Y * sensitivity);
-
-                Matrix4 rotYZ;
-
-                Matrix4 rotXZ;
-
-                Matrix4.CreateRotationX(mouseDelta.Y * sensitivity, out rotYZ);
-                Matrix4.CreateRotationY(mouseDelta.X * sensitivity, out rotXZ);
-
-                modelMatrix *= rotXZ *= rotYZ;
+                modelMatrix = rotXZ * rotYZ * modelMatrix;
             }
-            else if(MouseState.IsButtonReleased(MouseButton.Left))
+            else if(MouseState.IsButtonDown(MouseButton.Right))
             {
-                // modelMatrix = Matrix4.Identity;
-                
+                Matrix4.CreateRotationZ(mouseDelta.X * rotationSensitivity, out Matrix4 rotXY);
+                modelMatrix = rotXY * modelMatrix;
             }
+            
 
             viewModelProjectMatrix =  viewMatrix  * projectionMatrix * modelMatrix ;
         }
