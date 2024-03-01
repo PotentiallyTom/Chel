@@ -91,19 +91,11 @@ public class RenderWindow : GameWindow
         {
             base.OnRenderFrame(args);
             GL.Clear(ClearBufferMask.ColorBufferBit);
-
             
             computeShader.Use();
 
             int wSliceLoc = GL.GetUniformLocation(computeShader.Handle,"sliceDepth");
             GL.Uniform1(wSliceLoc,1,new float[] {sliceDepth});
-
-            // Matrix4 transfom4 = new Matrix4(
-            //     1,0,0,0,
-            //     0,1,0,0,
-            //     0,0,1,0,
-            //     0,0,0,1
-            // );
 
             Matrix4 transfom4 = stateFrameTransformMatrix;
 
@@ -132,27 +124,34 @@ public class RenderWindow : GameWindow
             float rotationSensitivity = 0.01f;
             float scaleSensitivity = -0.05f;
 
-            // 3D world transformations
-            float scaleFactor = (float)Math.Exp(MouseState.ScrollDelta.Y * scaleSensitivity);
-            Matrix4.CreateScale(scaleFactor, out Matrix4 scale);
-
-            modelMatrix = scale * modelMatrix;
-            if(MouseState.IsButtonDown(MouseButton.Left))
+            if(!(KeyboardState.IsKeyDown(Keys.LeftShift) || KeyboardState.IsKeyDown(Keys.RightShift)))
             {
-                Matrix4.CreateRotationX(mouseDelta.Y * rotationSensitivity, out Matrix4 rotYZ);
-                Matrix4.CreateRotationY(mouseDelta.X * rotationSensitivity, out Matrix4 rotXZ);
+                // 3D view transformations
+                float scaleFactor = (float)Math.Exp(MouseState.ScrollDelta.Y * scaleSensitivity);
+                Matrix4.CreateScale(scaleFactor, out Matrix4 scale);
 
-                modelMatrix = rotXZ * rotYZ * modelMatrix;
+                modelMatrix = scale * modelMatrix;
+                if(MouseState.IsButtonDown(MouseButton.Left))
+                {
+                    Matrix4.CreateRotationX(mouseDelta.Y * rotationSensitivity, out Matrix4 rotYZ);
+                    Matrix4.CreateRotationY(mouseDelta.X * rotationSensitivity, out Matrix4 rotXZ);
+
+                    modelMatrix = rotXZ * rotYZ * modelMatrix;
+                }
+                else if(MouseState.IsButtonDown(MouseButton.Right))
+                {
+                    Matrix4.CreateRotationZ(mouseDelta.X * rotationSensitivity, out Matrix4 rotXY);
+                    modelMatrix = rotXY * modelMatrix;
+                }
             }
-            else if(MouseState.IsButtonDown(MouseButton.Right))
+            else
             {
-                Matrix4.CreateRotationZ(mouseDelta.X * rotationSensitivity, out Matrix4 rotXY);
-                modelMatrix = rotXY * modelMatrix;
+                //4D view transformation
             }
-            
 
-            viewModelProjectMatrix =  viewMatrix  * projectionMatrix * modelMatrix ;
+            viewModelProjectMatrix = viewMatrix  * projectionMatrix * modelMatrix ;
         }
+
 
         protected override void OnResize(ResizeEventArgs e)
         {
