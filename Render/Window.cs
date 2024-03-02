@@ -138,35 +138,89 @@ public class RenderWindow : GameWindow
             base.OnUpdateFrame(args);
 
             Vector2 mouseDelta = MouseState.Delta;
-            float rotationSensitivity = 0.01f;
+            float rotationSensitivity3D = 0.01f;
+            float rotationSensitivity4D = 0.015f;
             float scaleSensitivity = 0.05f;
 
-            if(!(KeyboardState.IsKeyDown(Keys.LeftShift) || KeyboardState.IsKeyDown(Keys.RightShift)))
+            float cosSens4 = (float)Math.Cos(rotationSensitivity4D);
+            float sinSens4 = (float)Math.Sin(rotationSensitivity4D);
+
+            // 3D view transformations
+            float scaleFactor = (float)Math.Exp(MouseState.ScrollDelta.Y * scaleSensitivity);
+            Matrix4.CreateScale(scaleFactor, out Matrix4 scale);
+
+            modelMatrix = scale * modelMatrix;
+            if(MouseState.IsButtonDown(MouseButton.Left))
             {
-                // 3D view transformations
-                float scaleFactor = (float)Math.Exp(MouseState.ScrollDelta.Y * scaleSensitivity);
-                Matrix4.CreateScale(scaleFactor, out Matrix4 scale);
+                Matrix4.CreateRotationX(mouseDelta.Y * rotationSensitivity3D, out Matrix4 rotYZ);
+                Matrix4.CreateRotationY(mouseDelta.X * rotationSensitivity3D, out Matrix4 rotXZ);
 
-                modelMatrix = scale * modelMatrix;
-                if(MouseState.IsButtonDown(MouseButton.Left))
-                {
-                    Matrix4.CreateRotationX(mouseDelta.Y * rotationSensitivity, out Matrix4 rotYZ);
-                    Matrix4.CreateRotationY(mouseDelta.X * rotationSensitivity, out Matrix4 rotXZ);
-
-                    modelMatrix = rotXZ * rotYZ * modelMatrix;
-                }
-                else if(MouseState.IsButtonDown(MouseButton.Right))
-                {
-                    Matrix4.CreateRotationZ(mouseDelta.X * rotationSensitivity, out Matrix4 rotXY);
-                    modelMatrix = rotXY * modelMatrix;
-                }
+                modelMatrix = rotXZ * rotYZ * modelMatrix;
             }
-            else
+            else if(MouseState.IsButtonDown(MouseButton.Right))
             {
-                //4D view transformation
+                Matrix4.CreateRotationZ(mouseDelta.X * rotationSensitivity3D, out Matrix4 rotXY);
+                modelMatrix = rotXY * modelMatrix;
             }
-
             viewModelProjectMatrix = viewMatrix  * projectionMatrix * modelMatrix ;
+
+            if(KeyboardState.IsKeyDown(Keys.LeftShift)) rotationSensitivity4D *= -1;
+            if(KeyboardState.IsKeyDown(Keys.D1))
+            {
+                //XY
+                Matrix4.CreateRotationZ(rotationSensitivity4D, out Matrix4 res);
+                computeShaderTransformMatrix = res * computeShaderTransformMatrix;
+            }
+            if(KeyboardState.IsKeyDown(Keys.D2))
+            {
+                //XZ
+                Matrix4.CreateRotationY(rotationSensitivity4D, out Matrix4 res);
+                computeShaderTransformMatrix = res * computeShaderTransformMatrix;
+            }
+            if(KeyboardState.IsKeyDown(Keys.D3))
+            {
+                //YZ
+                Matrix4.CreateRotationX(rotationSensitivity4D, out Matrix4 res);
+                computeShaderTransformMatrix = res * computeShaderTransformMatrix;
+            }
+            if(KeyboardState.IsKeyDown(Keys.Q))
+            {
+                //XW
+                Matrix4 res = new Matrix4(
+                    cosSens4, 0, 0, -sinSens4,
+                    0,        1, 0, 0,
+                    0,        0, 1, 0,
+                    sinSens4, 0, 0, cosSens4
+                );
+                computeShaderTransformMatrix = res * computeShaderTransformMatrix;
+            }
+            if(KeyboardState.IsKeyDown(Keys.W))
+            {
+                //YW
+                Matrix4 res = new Matrix4(
+                    1, 0,        0, 0,
+                    0, cosSens4, 0, -sinSens4,
+                    0, 0,        1, 0,
+                    0, sinSens4, 0, cosSens4
+                );
+                computeShaderTransformMatrix = res * computeShaderTransformMatrix;
+            }
+            if(KeyboardState.IsKeyDown(Keys.E))
+            {
+                //ZW
+                Matrix4 res = new Matrix4(
+                    1, 0, 0, 0,
+                    0, 1, 0, 0,
+                    0, 0, cosSens4, -sinSens4,
+                    0, 0, sinSens4, cosSens4
+                );
+                computeShaderTransformMatrix = res * computeShaderTransformMatrix;
+            }
+            if(KeyboardState.IsKeyPressed(Keys.R))
+            {
+                computeShaderTransformMatrix = Matrix4.Identity;
+            }
+
         }
 
 
