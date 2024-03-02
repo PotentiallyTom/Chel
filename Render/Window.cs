@@ -8,7 +8,7 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 namespace Chel.Render;
 public class RenderWindow : GameWindow
 {
-    public RenderWindow(int width, int height, string title) 
+    public RenderWindow(int width, int height, string title, string renderpackPath, string modelPath) 
         : base(
             GameWindowSettings.Default, 
             new NativeWindowSettings() { Size = (width, height), Title = title }
@@ -19,6 +19,9 @@ public class RenderWindow : GameWindow
             this.height = height;
             projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(0.7f, (float)width / (float)height, 0.1f, 100.0f);
             modelMatrix = Matrix4.Identity;
+
+            renderpack = Renderpack.Load(renderpackPath);
+            @object = new StylParser().ParseFile(modelPath);
         }
         Renderpack renderpack;
         int width;
@@ -50,10 +53,6 @@ public class RenderWindow : GameWindow
             base.OnLoad();
 
             GL.ClearColor(0.2f,0.2f,0.2f,1.0f);
-
-            renderpack = Renderpack.Load(@"RenderPacks\OrthographicWireframe.yml");
-            // renderpack = Renderpack.Load(@"RenderPacks\Slicer.yml");
-            @object = new StylParser().ParseFile(@"Models\normalhypercube.styl");
 
             vertices = @object.AsArray();     
 
