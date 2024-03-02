@@ -35,15 +35,16 @@ public class RenderWindow : GameWindow
         int VertexArrayObject;
         int FacetBufferObject;
         int TriBufferObject;
-        int ConstBufferObject;
         int VertexBufferLength;
         VertexFragmentShader vertexFragmentShader;
         ComputeShader computeShader;
         HyperObject @object;
         Matrix4 viewModelProjectMatrix;
-        Matrix4 stateFrameTransformMatrix = Matrix4.Identity;
-        float sliceDepth;
-
+        Matrix4 computeShaderTransformMatrix = Matrix4.Identity;
+        List<(string name, int location, float value)> computeShaderUniforms = new();
+        List<(string name, int location, float value)> vertexFragmentShaderUniforms = new();
+        int compTransformLoc;
+        int vertTransformLoc;
         protected override void OnLoad()
         {
             base.OnLoad();
@@ -85,6 +86,25 @@ public class RenderWindow : GameWindow
             GL.BindVertexArray(VertexArrayObject);
             GL.VertexAttribPointer(0,3,VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
             GL.EnableVertexAttribArray(0);
+
+            compTransformLoc = GL.GetUniformLocation(computeShader.Handle, "transform");
+            if(compTransformLoc == -1) throw new InvalidDataException($"Attempting to access the transform matrix in the compute shader, but it doesn't exist");
+
+            vertTransformLoc = GL.GetUniformLocation(vertexFragmentShader.Handle, "transform");
+            if(vertTransformLoc == -1) throw new InvalidDataException($"Attempting to access the transform matrix in the vertex shader, but it doesn't exist");
+
+            foreach(string s in new string[] {"sliceDepth"})
+            {
+                int loc = GL.GetUniformLocation(computeShader.Handle, s);
+                if(loc == -1) throw new InvalidDataException($"Attempting to access uniform {s} in the compute shader, but it doesn't exist");
+                computeShaderUniforms.Add((s,loc,0));
+            }
+            foreach(string s in new string[] {})
+            {
+                int loc = GL.GetUniformLocation(vertexFragmentShader.Handle, s);
+                if(loc == -1) throw new InvalidDataException($"Attempting to access uniform {s} in the vertex or fragment shader, but it doesn't exist");
+                computeShaderUniforms.Add((s,loc,0));
+            }
         }
 
         protected override void OnRenderFrame(FrameEventArgs args)
@@ -94,12 +114,13 @@ public class RenderWindow : GameWindow
             
             computeShader.Use();
 
-            int wSliceLoc = GL.GetUniformLocation(computeShader.Handle,"sliceDepth");
-            GL.Uniform1(wSliceLoc,1,new float[] {sliceDepth});
+            foreach((string _, int location, float value) in computeShaderUniforms)
+            {
+                GL.Uniform1(location, value);
+            }
 
-            Matrix4 transfom4 = stateFrameTransformMatrix;
+            Matrix4 transfom4 = computeShaderTransformMatrix;
 
-            int compTransformLoc = GL.GetUniformLocation(computeShader.Handle, "transform");
             GL.UniformMatrix4(compTransformLoc, false, ref transfom4);
 
             GL.DispatchCompute(vertices.Length / 16,1,1);
@@ -109,7 +130,7 @@ public class RenderWindow : GameWindow
             // float[] outputDebug = new float[VertexBufferLength];
             // GL.BindBuffer(BufferTarget.ShaderStorageBuffer, TriBufferObject);
             // GL.GetBufferSubData(BufferTarget.ShaderStorageBuffer,0,VertexBufferLength * sizeof(float), outputDebug);
-            int vertTransformLoc = GL.GetUniformLocation(vertexFragmentShader.Handle, "transform");
+            
             GL.UniformMatrix4(vertTransformLoc, false, ref viewModelProjectMatrix);
             GL.BindVertexArray(VertexArrayObject);
 
@@ -122,7 +143,7 @@ public class RenderWindow : GameWindow
 
             Vector2 mouseDelta = MouseState.Delta;
             float rotationSensitivity = 0.01f;
-            float scaleSensitivity = -0.05f;
+            float scaleSensitivity = 0.05f;
 
             if(!(KeyboardState.IsKeyDown(Keys.LeftShift) || KeyboardState.IsKeyDown(Keys.RightShift)))
             {
