@@ -40,7 +40,7 @@ public class Program
         catch(Exception e)
         {
             Console.WriteLine($"ERROR: An exception has occured and the program has been killed");
-            Console.WriteLine(e.Data);
+            Console.WriteLine(e.Message);
         }
 
     }

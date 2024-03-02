@@ -10,11 +10,15 @@ public readonly struct Renderpack
         public string? FragmentShaderPath {get;set;}
         public string? ComputeShaderPath {get;set;}
         public string? PrimitiveType {get;set;} 
+        public List<string>? ComputeShaderUniforms {get;set;} 
+        public List<string>? VertexFragmentShaderUniforms {get;set;}
     }
     public float OutputRatio {get;}
     public VertexFragmentShader VertexFragmentShader {get;}
     public ComputeShader ComputeShader {get;}
     public PrimitiveType PrimitiveType {get;}
+    public List<string> ComputeShaderUniforms {get;}
+    public List<string> VertexFragmentShaderUniforms {get;}
 
     public static Renderpack Load(string path)
     {
@@ -26,7 +30,9 @@ public readonly struct Renderpack
             parsed.VertexShaderPath ?? "", 
             parsed.FragmentShaderPath ?? "", 
             parsed.ComputeShaderPath ?? "", 
-            Enum.Parse<PrimitiveType>(parsed.PrimitiveType ?? "")
+            Enum.Parse<PrimitiveType>(parsed.PrimitiveType ?? ""),
+            parsed.ComputeShaderUniforms ?? new(),
+            parsed.VertexFragmentShaderUniforms ?? new()
         );
     }
 
@@ -35,12 +41,16 @@ public readonly struct Renderpack
         string vertexShaderPath, 
         string fragmentShaderPath, 
         string computeShaderPath, 
-        PrimitiveType primitiveType
+        PrimitiveType primitiveType,
+        List<string> computeShaderUniforms,
+        List<string> vertexFragmentShaderUniforms
     )
     {
         OutputRatio = outputRatio;
         VertexFragmentShader = new VertexFragmentShader(vertexShaderPath, fragmentShaderPath);
         ComputeShader = new ComputeShader(computeShaderPath);
         PrimitiveType = primitiveType;
+        ComputeShaderUniforms = computeShaderUniforms;
+        VertexFragmentShaderUniforms = vertexFragmentShaderUniforms;
     }
 }

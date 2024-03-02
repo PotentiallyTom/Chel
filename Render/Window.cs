@@ -61,9 +61,6 @@ public class RenderWindow : GameWindow
             vertexFragmentShader = renderpack.VertexFragmentShader;
             computeShader = renderpack.ComputeShader;
 
-            // transformMatrixLocation = GL.GetUniformLocation(computeShader.Handle, "transformMatrix");
-            // GL.UniformMatrix4(transformMatrixLocation, false, ref viewModelProjectMatrix);
-
             FacetBufferObject = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ShaderStorageBuffer, FacetBufferObject);
             GL.BufferData(BufferTarget.ShaderStorageBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.StaticDraw);
@@ -73,11 +70,6 @@ public class RenderWindow : GameWindow
             GL.BindBuffer(BufferTarget.ShaderStorageBuffer, TriBufferObject);
             GL.BufferData(BufferTarget.ShaderStorageBuffer, VertexBufferLength * sizeof(float), IntPtr.Zero, BufferUsageHint.DynamicDraw);
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 2, TriBufferObject);
-
-            // ConstBufferObject = GL.GenBuffer();
-            // GL.BindBuffer(BufferTarget.ShaderStorageBuffer, ConstBufferObject);
-            // GL.BufferData(BufferTarget.ShaderStorageBuffer, sizeof(float), new float[] {0}, BufferUsageHint.StreamDraw);
-            // GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 2, ConstBufferObject);
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, TriBufferObject);
 
@@ -92,13 +84,13 @@ public class RenderWindow : GameWindow
             vertTransformLoc = GL.GetUniformLocation(vertexFragmentShader.Handle, "transform");
             if(vertTransformLoc == -1) throw new InvalidDataException($"Attempting to access the transform matrix in the vertex shader, but it doesn't exist");
 
-            foreach(string s in new string[] {"sliceDepth"})
+            foreach(string s in renderpack.ComputeShaderUniforms)
             {
                 int loc = GL.GetUniformLocation(computeShader.Handle, s);
                 if(loc == -1) throw new InvalidDataException($"Attempting to access uniform {s} in the compute shader, but it doesn't exist");
                 computeShaderUniforms.Add((s,loc,0));
             }
-            foreach(string s in new string[] {})
+            foreach(string s in renderpack.VertexFragmentShaderUniforms)
             {
                 int loc = GL.GetUniformLocation(vertexFragmentShader.Handle, s);
                 if(loc == -1) throw new InvalidDataException($"Attempting to access uniform {s} in the vertex or fragment shader, but it doesn't exist");
@@ -129,7 +121,12 @@ public class RenderWindow : GameWindow
             // float[] outputDebug = new float[VertexBufferLength];
             // GL.BindBuffer(BufferTarget.ShaderStorageBuffer, TriBufferObject);
             // GL.GetBufferSubData(BufferTarget.ShaderStorageBuffer,0,VertexBufferLength * sizeof(float), outputDebug);
-            
+
+            foreach((string _, int location, float value) in vertexFragmentShaderUniforms)
+            {
+                GL.Uniform1(location, value);
+            }
+
             GL.UniformMatrix4(vertTransformLoc, false, ref viewModelProjectMatrix);
             GL.BindVertexArray(VertexArrayObject);
 
