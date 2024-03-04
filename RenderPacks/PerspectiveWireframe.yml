@@ -1,0 +1,8 @@
+OutputRatio: 2.25
+VertexShaderPath: "Shaders\\Vertex\\passthrough.vert"
+FragmentShaderPath: "Shaders\\Fragment\\yellow.frag"
+ComputeShaderPath: "Shaders\\Compute\\perspectiveWireframe.comp"
+PrimitiveType: Lines
+ComputeShaderUniforms:
+  - perspectiveDepth
+  - normalisationConstant

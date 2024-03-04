@@ -230,7 +230,7 @@ public class RenderWindow : GameWindow
             }
 
             // Arbitrary inputs
-            float arbSens = 0.02f;
+            float arbSens = 0.005f;
             int keyIndex = 0;
             if(KeyboardState.IsKeyDown(Keys.LeftShift)) arbSens *= -1;
             foreach(Keys k in new Keys[] {Keys.Z, Keys.X, Keys.C, Keys.V, Keys.B, Keys.N, Keys.M, Keys.Comma}
