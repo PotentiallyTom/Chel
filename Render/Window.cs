@@ -1,6 +1,7 @@
 ﻿using Chel.Parse;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
+using OpenTK.Platform.Windows;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
@@ -94,7 +95,12 @@ public class RenderWindow : GameWindow
             {
                 int loc = GL.GetUniformLocation(vertexFragmentShader.Handle, s);
                 if(loc == -1) throw new InvalidDataException($"Attempting to access uniform {s} in the vertex or fragment shader, but it doesn't exist");
-                computeShaderUniforms.Add((s,loc,0));
+                vertexFragmentShaderUniforms.Add((s,loc,0));
+            }
+
+            if(computeShaderUniforms.Count() + vertexFragmentShaderUniforms.Count() > 8)
+            {
+                throw new InvalidDataException($"Attempting to define too many arbitrary uniforms ({computeShaderUniforms.Count() + vertexFragmentShaderUniforms.Count()} > 8)");
             }
         }
 
@@ -164,20 +170,21 @@ public class RenderWindow : GameWindow
             }
             viewModelProjectMatrix = viewMatrix  * projectionMatrix * modelMatrix ;
 
+            // 4D view transformations
             if(KeyboardState.IsKeyDown(Keys.LeftShift)) rotationSensitivity4D *= -1;
-            if(KeyboardState.IsKeyDown(Keys.D1))
+            if(KeyboardState.IsKeyDown(Keys.A))
             {
                 //XY
                 Matrix4.CreateRotationZ(rotationSensitivity4D, out Matrix4 res);
                 computeShaderTransformMatrix = res * computeShaderTransformMatrix;
             }
-            if(KeyboardState.IsKeyDown(Keys.D2))
+            if(KeyboardState.IsKeyDown(Keys.S))
             {
                 //XZ
                 Matrix4.CreateRotationY(rotationSensitivity4D, out Matrix4 res);
                 computeShaderTransformMatrix = res * computeShaderTransformMatrix;
             }
-            if(KeyboardState.IsKeyDown(Keys.D3))
+            if(KeyboardState.IsKeyDown(Keys.D))
             {
                 //YZ
                 Matrix4.CreateRotationX(rotationSensitivity4D, out Matrix4 res);
@@ -221,6 +228,8 @@ public class RenderWindow : GameWindow
                 computeShaderTransformMatrix = Matrix4.Identity;
             }
 
+            // Arbitrary inputs
+            
         }
 
 
