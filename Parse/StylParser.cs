@@ -64,14 +64,10 @@ public class StylParser
         );
 
     }
-    private  bool isWhiteSpace(char c)
-    {
-        return new char[] {' ', '\n', '\r', '\t'}.Contains(c);
-    }
     public HyperObject ParseText(string data)
     {
         IEnumerable<string> facetStrings = Regex.Matches(data, REGEX_GET_FACETS).Select(x=>x.Value);
-        IEnumerable<HyperTetrahedron> tetrahedrons = facetStrings.Select(x=>parseFacet(x));
+        IEnumerable<HyperTetrahedron> tetrahedrons = facetStrings.Select(parseFacet);
         return new HyperObject(tetrahedrons);
     }
     public  HyperObject ParseLines(IEnumerable<string> data)

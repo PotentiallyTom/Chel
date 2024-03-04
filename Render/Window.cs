@@ -5,6 +5,7 @@ using OpenTK.Platform.Windows;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using YamlDotNet.Core.Tokens;
 
 namespace Chel.Render;
 public class RenderWindow : GameWindow
@@ -229,8 +230,32 @@ public class RenderWindow : GameWindow
             }
 
             // Arbitrary inputs
-            
-        }
+            float arbSens = 0.02f;
+            int keyIndex = 0;
+            if(KeyboardState.IsKeyDown(Keys.LeftShift)) arbSens *= -1;
+            foreach(Keys k in new Keys[] {Keys.Z, Keys.X, Keys.C, Keys.V, Keys.B, Keys.N, Keys.M, Keys.Comma}
+                .Take(computeShaderUniforms.Count() + vertexFragmentShaderUniforms.Count()))
+            {
+                // Work out which set of uniforms we need to update
+                if(keyIndex < computeShaderUniforms.Count())
+                {
+                    int index = keyIndex;
+                    if(KeyboardState.IsKeyDown(k))
+                    {
+                        computeShaderUniforms[index] = (computeShaderUniforms[index].name, computeShaderUniforms[index].location, computeShaderUniforms[index].value + arbSens);
+                    }
+                }
+                else
+                {
+                    int index = keyIndex - computeShaderUniforms.Count();
+                    if(KeyboardState.IsKeyDown(k))
+                    {
+                        computeShaderUniforms[index] = (computeShaderUniforms[index].name, computeShaderUniforms[index].location, computeShaderUniforms[index].value + arbSens);
+                    }
+                }
+                keyIndex++;
+            }
+        }   
 
 
         protected override void OnResize(ResizeEventArgs e)
