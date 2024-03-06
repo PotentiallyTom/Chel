@@ -1,0 +1,76 @@
+#version 430
+
+layout(local_size_x = 1) in;
+
+layout(binding = 1) buffer BUFF_HyperObjectData {
+    float hyperObjectData[];
+};
+
+layout(binding = 2) buffer BUFF_TransformedPoints {
+    float transformedPoints[];
+};
+
+layout(location = 3) uniform mat4 transform;
+
+void main(){
+    
+    int facetIndex = int(gl_GlobalInvocationID.x) * 16; // 4 * vec4
+    int triIndex = int(gl_GlobalInvocationID.x) * 36; // 6 * 2 * vec3
+
+    vec4 A = vec4(hyperObjectData[facetIndex], hyperObjectData[facetIndex + 1], hyperObjectData[facetIndex + 2], hyperObjectData[facetIndex + 3]);
+    vec4 B = vec4(hyperObjectData[facetIndex + 4], hyperObjectData[facetIndex + 5], hyperObjectData[facetIndex + 6], hyperObjectData[facetIndex + 7]);
+    vec4 C = vec4(hyperObjectData[facetIndex + 8], hyperObjectData[facetIndex + 9], hyperObjectData[facetIndex + 10], hyperObjectData[facetIndex + 11]);
+    vec4 D = vec4(hyperObjectData[facetIndex + 12], hyperObjectData[facetIndex + 13], hyperObjectData[facetIndex + 14], hyperObjectData[facetIndex + 15]);
+
+    A = transform * A;
+    B = transform * B;
+    C = transform * C;
+    D = transform * D;
+
+    vec3 Ar = vec3(A.x,A.y,A.z);
+    vec3 Br = vec3(B.x,B.y,B.z);
+    vec3 Cr = vec3(C.x,C.y,C.z);
+    vec3 Dr = vec3(D.x,D.y,D.z);
+
+    transformedPoints[triIndex] = Ar.x;
+    transformedPoints[triIndex + 1] = Ar.y;
+    transformedPoints[triIndex + 2] = Ar.z;
+    transformedPoints[triIndex + 3] = Br.x;
+    transformedPoints[triIndex + 4] = Br.y;
+    transformedPoints[triIndex + 5] = Br.z;
+
+    transformedPoints[triIndex + 6] = Ar.x;
+    transformedPoints[triIndex + 7] = Ar.y;
+    transformedPoints[triIndex + 8] = Ar.z;
+    transformedPoints[triIndex + 9] = Cr.x;
+    transformedPoints[triIndex + 10] = Cr.y;
+    transformedPoints[triIndex + 11] = Cr.z;
+
+    transformedPoints[triIndex + 12] = Ar.x;
+    transformedPoints[triIndex + 13] = Ar.y;
+    transformedPoints[triIndex + 14] = Ar.z;
+    transformedPoints[triIndex + 15] = Dr.x;
+    transformedPoints[triIndex + 16] = Dr.y;
+    transformedPoints[triIndex + 17] = Dr.z;
+
+    transformedPoints[triIndex + 18] = Br.x;
+    transformedPoints[triIndex + 19] = Br.y;
+    transformedPoints[triIndex + 20] = Br.z;
+    transformedPoints[triIndex + 21] = Cr.x;
+    transformedPoints[triIndex + 22] = Cr.y;
+    transformedPoints[triIndex + 23] = Cr.z;
+
+    transformedPoints[triIndex + 24] = Br.x;
+    transformedPoints[triIndex + 25] = Br.y;
+    transformedPoints[triIndex + 26] = Br.z;
+    transformedPoints[triIndex + 27] = Dr.x;
+    transformedPoints[triIndex + 28] = Dr.y;
+    transformedPoints[triIndex + 29] = Dr.z;
+
+    transformedPoints[triIndex + 30] = Cr.x;
+    transformedPoints[triIndex + 31] = Cr.y;
+    transformedPoints[triIndex + 32] = Cr.z;
+    transformedPoints[triIndex + 33] = Dr.x;
+    transformedPoints[triIndex + 34] = Dr.y;
+    transformedPoints[triIndex + 35] = Dr.z;
+}
