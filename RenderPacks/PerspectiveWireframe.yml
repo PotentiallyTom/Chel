@@ -4,5 +4,5 @@ FragmentShaderPath: "Shaders\\Fragment\\yellow.frag"
 ComputeShaderPath: "Shaders\\Compute\\perspectiveWireframe.comp"
 PrimitiveType: Lines
 ComputeShaderUniforms:
-  - perspectiveDepth
+  - cameraDepth
   - normalisationConstant
