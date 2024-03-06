@@ -17,13 +17,13 @@ layout(location = 5) uniform float normalisationConstant;
 vec3 shrinkOnW(vec4 v)
 {
     float scaleFactor;
-    if(v.w + perspectiveDepth == 0)
+    if(v.w + perspectiveDepth < 0)
     {
         scaleFactor = 9999;
     }
     else
     {
-        scaleFactor = (normalisationConstant * v.w) / (v.w + perspectiveDepth);
+        scaleFactor = (normalisationConstant + v.w) / (v.w + perspectiveDepth);
     }
 
     return vec3(v.x * scaleFactor, v.y * scaleFactor, v.z * scaleFactor);

@@ -140,6 +140,7 @@ public class RenderWindow : GameWindow
             GL.DrawArrays(renderpack.PrimitiveType,0,(int)(vertices.Length * renderpack.OutputRatio));
             SwapBuffers();
         }
+        bool wasKeyDown = false;
         protected override void OnUpdateFrame(FrameEventArgs args)
         {
             base.OnUpdateFrame(args);
@@ -148,9 +149,6 @@ public class RenderWindow : GameWindow
             float rotationSensitivity3D = 0.01f;
             float rotationSensitivity4D = 0.015f;
             float scaleSensitivity = 0.05f;
-
-            float cosSens4 = (float)Math.Cos(rotationSensitivity4D);
-            float sinSens4 = (float)Math.Sin(rotationSensitivity4D);
 
             // 3D view transformations
             float scaleFactor = (float)Math.Exp(MouseState.ScrollDelta.Y * scaleSensitivity);
@@ -173,6 +171,8 @@ public class RenderWindow : GameWindow
 
             // 4D view transformations
             if(KeyboardState.IsKeyDown(Keys.LeftShift)) rotationSensitivity4D *= -1;
+            float cosSens4 = (float)Math.Cos(rotationSensitivity4D);
+            float sinSens4 = (float)Math.Sin(rotationSensitivity4D);
             if(KeyboardState.IsKeyDown(Keys.A))
             {
                 //XY
@@ -254,6 +254,40 @@ public class RenderWindow : GameWindow
                     }
                 }
                 keyIndex++;
+            }
+
+            // Dump the state after the keys are released
+            if(KeyboardState.IsAnyKeyDown || MouseState.IsAnyButtonDown) wasKeyDown = true;
+            if(!KeyboardState.IsAnyKeyDown && !MouseState.IsAnyButtonDown && wasKeyDown)
+            {
+                wasKeyDown = false;
+                Console.WriteLine();
+                Console.WriteLine("Current State:");
+                Console.WriteLine("4D Transform matrix:");
+                Console.WriteLine(computeShaderTransformMatrix.Row0);
+                Console.WriteLine(computeShaderTransformMatrix.Row1);
+                Console.WriteLine(computeShaderTransformMatrix.Row2);
+                Console.WriteLine(computeShaderTransformMatrix.Row3);
+                Console.WriteLine();
+                Console.WriteLine("3D Transform matrix:");
+                Console.WriteLine(modelMatrix.Row0);
+                Console.WriteLine(modelMatrix.Row1);
+                Console.WriteLine(modelMatrix.Row2);
+                Console.WriteLine(modelMatrix.Row3);
+                Console.WriteLine();
+                Console.WriteLine("Compute Uniforms:");
+                foreach(var u in computeShaderUniforms)
+                {
+                    Console.WriteLine($"{u.name}: {u.value}");
+                }
+                Console.WriteLine();
+                Console.WriteLine("Vertex Fragment Uniforms:");
+                foreach(var u in vertexFragmentShaderUniforms)
+                {
+                    Console.WriteLine($"{u.name}: {u.value}");
+                }
+                Console.WriteLine();
+                Console.WriteLine("=================");
             }
         }   
 
