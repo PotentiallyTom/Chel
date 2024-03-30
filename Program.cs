@@ -5,7 +5,7 @@ namespace Chel;
 public class Program
 {
     const string DEFAULT_PACK = @"RenderPacks\OrthographicWireframe.yml";
-    const string DEFAULT_MODEL = @"Models\normalhypercube.styl";
+    const string DEFAULT_MODEL = @"Models\5cell.styl";
     public static void Main(string[] args)
     {
         string pack = DEFAULT_PACK;

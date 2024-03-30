@@ -54,8 +54,8 @@ public class RenderWindow : GameWindow
         {
             base.OnLoad();
 
-            // GL.ClearColor(0.2f,0.2f,0.2f,1.0f);
-            GL.ClearColor(1f,1f,1f,1f);
+            GL.ClearColor(0.2f,0.2f,0.2f,1.0f);
+            // GL.ClearColor(1f,1f,1f,1f);
 
             vertices = @object.AsArray();     
 
