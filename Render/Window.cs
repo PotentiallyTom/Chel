@@ -176,7 +176,7 @@ public class RenderWindow : GameWindow
             float sinSens4 = (float)Math.Sin(rotationSensitivity4D);
             if(KeyboardState.IsKeyDown(Keys.A))
             {
-                //XY
+                //XY    
                 Matrix4.CreateRotationZ(rotationSensitivity4D, out Matrix4 res);
                 computeShaderTransformMatrix = res * computeShaderTransformMatrix;
             }

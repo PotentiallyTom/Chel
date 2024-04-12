@@ -27,7 +27,7 @@ public class Program
         }
         try
         {
-        using(RenderWindow rw = new(800,600,"Chel",pack,model))
+            using(RenderWindow rw = new(800,600,"Chel",pack,model))
             {
                 rw.Run();
             }

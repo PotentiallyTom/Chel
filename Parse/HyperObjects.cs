@@ -32,10 +32,6 @@ public struct HyperTetrahedron
     {
         return !(v1==v2);
     }
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(A,B,C,D);
-    }
     private static Vector4 planeIntersection(Vector4 a, Vector4 b, float w)
     {
         float downRatio = w / (a.W - b.W);

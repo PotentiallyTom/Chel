@@ -12,17 +12,20 @@ public class StylParser
     {
         float? _toReturn = float.TryParse(
             floatString, 
-            NumberStyles.AllowExponent | NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint, 
+            NumberStyles.AllowExponent 
+            | NumberStyles.AllowLeadingSign 
+            | NumberStyles.AllowDecimalPoint, 
             NumberFormatInfo.CurrentInfo, 
             out float @out
             ) ? @out : null;
 
-        if(_toReturn is null) throw new InvalidDataException($"Failed to parse {floatString}");
+        if(_toReturn is null) 
+            throw new InvalidDataException($"Failed to parse {floatString}");
         else return (float)_toReturn;
     }
     private HyperTetrahedron parseFacet(string facet) 
     {
-        IEnumerable<string> _vertexStrings = Regex.Matches(facet,REGEX_GET_VERTICIES).Select(x=>x.Value);
+        IEnumerable<string> _vertexStrings = Regex.Matches(facet, REGEX_GET_VERTICIES).Select(x=>x.Value);
 
         if(_vertexStrings.Count() != 4) throw new InvalidDataException($"Failed to parse {facet} due to invalid facet format");
 
@@ -70,12 +73,7 @@ public class StylParser
         IEnumerable<HyperTetrahedron> tetrahedrons = facetStrings.Select(parseFacet);
         return new HyperObject(tetrahedrons);
     }
-    public  HyperObject ParseLines(IEnumerable<string> data)
-    {
-        string _decomposed = string.Join(null,data);
-        return ParseText(_decomposed);
-    }
-    public  HyperObject ParseFile(string filePath)
+    public HyperObject ParseFile(string filePath)
     {
         string _data = File.ReadAllText(filePath);
         return ParseText(_data);
