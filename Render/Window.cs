@@ -54,6 +54,10 @@ public class RenderWindow : GameWindow
         {
             base.OnLoad();
 
+            GL.Enable(EnableCap.DepthTest);
+            GL.DepthMask(true);
+            GL.DepthFunc(DepthFunction.Gequal);
+            GL.ClearDepth(-20);
             GL.ClearColor(0.2f,0.2f,0.2f,1.0f);
             // GL.ClearColor(1f,1f,1f,1f);
 
@@ -78,8 +82,11 @@ public class RenderWindow : GameWindow
 
             VertexArrayObject = GL.GenVertexArray();
             GL.BindVertexArray(VertexArrayObject);
-            GL.VertexAttribPointer(0,3,VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
+            GL.VertexAttribPointer(0,3,VertexAttribPointerType.Float, false, 4 * sizeof(float), 0);
             GL.EnableVertexAttribArray(0);
+
+            GL.VertexAttribPointer(1,1,VertexAttribPointerType.Float, false, 4 * sizeof(float), 3 * sizeof(float));
+            GL.EnableVertexAttribArray(1);
 
             compTransformLoc = GL.GetUniformLocation(computeShader.Handle, "transform");
             if(compTransformLoc == -1) throw new InvalidDataException($"Attempting to access the transform matrix in the compute shader, but it doesn't exist");
@@ -109,8 +116,9 @@ public class RenderWindow : GameWindow
         protected override void OnRenderFrame(FrameEventArgs args)
         {
             base.OnRenderFrame(args);
-            GL.Clear(ClearBufferMask.ColorBufferBit);
-            
+
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
             computeShader.Use();
 
             foreach((string _, int location, float value) in computeShaderUniforms)
@@ -131,6 +139,12 @@ public class RenderWindow : GameWindow
             // GL.BindBuffer(BufferTarget.ShaderStorageBuffer, TriBufferObject);
             // GL.GetBufferSubData(BufferTarget.ShaderStorageBuffer,0,VertexBufferLength * sizeof(float), outputDebug);
 
+            // Console.WriteLine("====");
+            // for(int i = 0 ; i < outputDebug.Length ; i += 4)
+            // {
+            //     Console.WriteLine($"{outputDebug[i]} {outputDebug[i+1]} {outputDebug[i+2]} {outputDebug[i+3]}");
+            // }
+
             foreach((string _, int location, float value) in vertexFragmentShaderUniforms)
             {
                 GL.Uniform1(location, value);
@@ -140,6 +154,7 @@ public class RenderWindow : GameWindow
             GL.BindVertexArray(VertexArrayObject);
 
             GL.DrawArrays(renderpack.PrimitiveType,0,(int)(vertices.Length * renderpack.OutputRatio));
+            // GL.DrawArrays(renderpack.PrimitiveType,0,3);
             SwapBuffers();
         }
         bool wasKeyDown = false;

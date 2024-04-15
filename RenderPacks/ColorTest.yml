@@ -1,0 +1,5 @@
+OutputRatio: 3
+VertexShaderPath: "Shaders\\Vertex\\passthroughColour.vert"
+FragmentShaderPath: "Shaders\\Fragment\\colourScale.frag"
+ComputeShaderPath: "Shaders\\Compute\\colourTest.comp"
+PrimitiveType: Triangles

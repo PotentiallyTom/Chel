@@ -1,0 +1,110 @@
+#version 430
+
+layout(local_size_x = 1) in;
+
+layout(binding = 1) buffer BUFF_HyperObjectData {
+    float hyperObjectData[];
+};
+
+layout(binding = 2) buffer BUFF_TransformedPoints {
+    float transformedPoints[];
+};
+
+layout(location = 3) uniform mat4 transform;
+
+vec3 calc_normal(vec3 a, vec3 b, vec3 c)
+{
+    vec3 v = b - a;
+    vec3 u = c - a;
+    float x = (u.y * v.z) - (u.z - v.y);
+    float y = (u.z * v.x) - (u.x * v.z);
+    float z = (u.x * v.y) - (u.y * v.x);
+    return vec3(x,y,z);
+}
+
+void main(){
+    vec3 LIGHT_DIR = normalize(vec3(1,4,1));
+
+    int facetIndex = int(gl_GlobalInvocationID.x) * 16;
+    int triIndex = int(gl_GlobalInvocationID.x) * 48; // 4 * 3 * (3 + 1)
+    
+    vec4 A = vec4(hyperObjectData[facetIndex], hyperObjectData[facetIndex + 1], hyperObjectData[facetIndex + 2], hyperObjectData[facetIndex + 3]);
+    vec4 B = vec4(hyperObjectData[facetIndex + 4], hyperObjectData[facetIndex + 5], hyperObjectData[facetIndex + 6], hyperObjectData[facetIndex + 7]);
+    vec4 C = vec4(hyperObjectData[facetIndex + 8], hyperObjectData[facetIndex + 9], hyperObjectData[facetIndex + 10], hyperObjectData[facetIndex + 11]);
+    vec4 D = vec4(hyperObjectData[facetIndex + 12], hyperObjectData[facetIndex + 13], hyperObjectData[facetIndex + 14], hyperObjectData[facetIndex + 15]);
+
+    A = transform * A;
+    B = transform * B;
+    C = transform * C;
+    D = transform * D;
+
+    vec3 a = vec3(A);
+    vec3 b = vec3(B);
+    vec3 c = vec3(C);
+    vec3 d = vec3(D);
+
+    // abc
+    vec3 abcNorm = calc_normal(a,b,c);
+    float abcShade = 1.0; // abs(dot(abcNorm, LIGHT_DIR));
+    // abd
+    vec3 abdNorm = calc_normal(a,b,d);
+    float abdShade = 0.4; // abs(dot(abdNorm, LIGHT_DIR));
+    // acd
+    vec3 acdNorm = calc_normal(a,c,d);
+    float acdShade = 0.6; // abs(dot(acdNorm, LIGHT_DIR));
+    // bcd
+    vec3 bcdNorm = calc_normal(b,c,d);
+    float bcdShade = 0.2; //abs(dot(bcdNorm, LIGHT_DIR));
+
+    transformedPoints[triIndex]     = a.x;
+    transformedPoints[triIndex + 1] = a.y;
+    transformedPoints[triIndex + 2] = a.z;
+    transformedPoints[triIndex + 3] = abcShade;
+    transformedPoints[triIndex + 4] = b.x;
+    transformedPoints[triIndex + 5] = b.y;
+    transformedPoints[triIndex + 6] = b.z;
+    transformedPoints[triIndex + 7] = abcShade;
+    transformedPoints[triIndex + 8] = c.x;
+    transformedPoints[triIndex + 9] = c.y;
+    transformedPoints[triIndex + 10] = c.z;
+    transformedPoints[triIndex + 11] = abcShade;
+
+    transformedPoints[triIndex + 12] = a.x;
+    transformedPoints[triIndex + 13] = a.y;
+    transformedPoints[triIndex + 14] = a.z;
+    transformedPoints[triIndex + 15] = abdShade;
+    transformedPoints[triIndex + 16] = d.x;
+    transformedPoints[triIndex + 17] = d.y;
+    transformedPoints[triIndex + 18] = d.z;
+    transformedPoints[triIndex + 19] = abdShade;
+    transformedPoints[triIndex + 20] = b.x;
+    transformedPoints[triIndex + 21] = b.y;
+    transformedPoints[triIndex + 22] = b.z;
+    transformedPoints[triIndex + 23] = abdShade;
+
+    transformedPoints[triIndex + 24] = a.x;
+    transformedPoints[triIndex + 25] = a.y;
+    transformedPoints[triIndex + 26] = a.z;
+    transformedPoints[triIndex + 27] = acdShade;
+    transformedPoints[triIndex + 28] = d.x;
+    transformedPoints[triIndex + 29] = d.y;
+    transformedPoints[triIndex + 30] = d.z;
+    transformedPoints[triIndex + 31] = acdShade;
+    transformedPoints[triIndex + 32] = c.x;
+    transformedPoints[triIndex + 33] = c.y;
+    transformedPoints[triIndex + 34] = c.z;
+    transformedPoints[triIndex + 35] = acdShade;
+
+    transformedPoints[triIndex + 36] = b.x;
+    transformedPoints[triIndex + 37] = b.y;
+    transformedPoints[triIndex + 38] = b.z;
+    transformedPoints[triIndex + 39] = bcdShade;
+    transformedPoints[triIndex + 40] = d.x;
+    transformedPoints[triIndex + 41] = d.y;
+    transformedPoints[triIndex + 42] = d.z;
+    transformedPoints[triIndex + 43] = bcdShade;
+    transformedPoints[triIndex + 44] = c.x;
+    transformedPoints[triIndex + 45] = c.y;
+    transformedPoints[triIndex + 46] = c.z;
+    transformedPoints[triIndex + 47] = bcdShade;
+}
