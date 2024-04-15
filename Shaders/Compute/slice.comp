@@ -110,7 +110,7 @@ void main() {
         t3 = computeIntersection(above[0],below[2], W);
     }
 
-    // transformedPoints[triIndex] = transform[0][0];
+    // transformedPoints[triIndex] = aboveCount;
     transformedPoints[triIndex] = t1.x;
     transformedPoints[triIndex + 1] = t1.y;
     transformedPoints[triIndex + 2] = t1.z;

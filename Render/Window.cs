@@ -126,6 +126,7 @@ public class RenderWindow : GameWindow
             GL.MemoryBarrier(MemoryBarrierFlags.AllBarrierBits);
             
             vertexFragmentShader.Use();
+
             // float[] outputDebug = new float[VertexBufferLength];
             // GL.BindBuffer(BufferTarget.ShaderStorageBuffer, TriBufferObject);
             // GL.GetBufferSubData(BufferTarget.ShaderStorageBuffer,0,VertexBufferLength * sizeof(float), outputDebug);
