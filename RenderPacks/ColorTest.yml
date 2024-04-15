@@ -1,4 +1,5 @@
 OutputRatio: 3
+AdditionalFloats: 1
 VertexShaderPath: "Shaders\\Vertex\\passthroughColour.vert"
 FragmentShaderPath: "Shaders\\Fragment\\colourScale.frag"
 ComputeShaderPath: "Shaders\\Compute\\colourTest.comp"

@@ -45,16 +45,16 @@ void main(){
 
     // abc
     vec3 abcNorm = calc_normal(a,b,c);
-    float abcShade = 1.0; // abs(dot(abcNorm, LIGHT_DIR));
+    float abcShade = abs(dot(abcNorm, LIGHT_DIR));
     // abd
     vec3 abdNorm = calc_normal(a,b,d);
-    float abdShade = 0.4; // abs(dot(abdNorm, LIGHT_DIR));
+    float abdShade = abs(dot(abdNorm, LIGHT_DIR));
     // acd
     vec3 acdNorm = calc_normal(a,c,d);
-    float acdShade = 0.6; // abs(dot(acdNorm, LIGHT_DIR));
+    float acdShade = abs(dot(acdNorm, LIGHT_DIR));
     // bcd
     vec3 bcdNorm = calc_normal(b,c,d);
-    float bcdShade = 0.2; //abs(dot(bcdNorm, LIGHT_DIR));
+    float bcdShade = abs(dot(bcdNorm, LIGHT_DIR));
 
     transformedPoints[triIndex]     = a.x;
     transformedPoints[triIndex + 1] = a.y;
