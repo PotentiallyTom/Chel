@@ -93,6 +93,10 @@ public class RenderWindow : GameWindow
                 GL.VertexAttribPointer(1,renderpack.AdditionalFloats,VertexAttribPointerType.Float, false, (3 + renderpack.AdditionalFloats) * sizeof(float), 3 * sizeof(float));
                 GL.EnableVertexAttribArray(1);
             }
+            if(renderpack.PrimitiveType == PrimitiveType.Points)
+            {
+                GL.PointSize(5f);
+            }
 
             compTransformLoc = GL.GetUniformLocation(computeShader.Handle, "transform");
             if(compTransformLoc == -1) throw new InvalidDataException($"Attempting to access the transform matrix in the compute shader, but it doesn't exist");

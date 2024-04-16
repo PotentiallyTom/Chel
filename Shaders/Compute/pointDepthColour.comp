@@ -1,0 +1,46 @@
+#version 430
+
+layout(local_size_x = 1) in;
+
+layout(binding = 1) buffer BUFF_HyperObjectData {
+    float hyperObjectData[];
+};
+
+layout(binding = 2) buffer BUFF_TransformedPoints {
+    float transformedPoints[];
+};
+
+layout(location = 3) uniform mat4 transform;
+
+void main()
+{
+    int facetIndex = int(gl_GlobalInvocationID.x) * 16;
+    int triIndex = int(gl_GlobalInvocationID.x) * 16; // 4 * (3+1)
+
+    vec4 A = vec4(hyperObjectData[facetIndex], hyperObjectData[facetIndex + 1], hyperObjectData[facetIndex + 2], hyperObjectData[facetIndex + 3]);
+    vec4 B = vec4(hyperObjectData[facetIndex + 4], hyperObjectData[facetIndex + 5], hyperObjectData[facetIndex + 6], hyperObjectData[facetIndex + 7]);
+    vec4 C = vec4(hyperObjectData[facetIndex + 8], hyperObjectData[facetIndex + 9], hyperObjectData[facetIndex + 10], hyperObjectData[facetIndex + 11]);
+    vec4 D = vec4(hyperObjectData[facetIndex + 12], hyperObjectData[facetIndex + 13], hyperObjectData[facetIndex + 14], hyperObjectData[facetIndex + 15]);
+
+    A = transform * A;
+    B = transform * B;
+    C = transform * C;
+    D = transform * D;
+
+    transformedPoints[triIndex]     = A.x;
+    transformedPoints[triIndex + 1] = A.y;
+    transformedPoints[triIndex + 2] = A.z;
+    transformedPoints[triIndex + 3] = smoothstep(0,1, A.w);
+    transformedPoints[triIndex + 4]  = B.x;
+    transformedPoints[triIndex + 5]  = B.y;
+    transformedPoints[triIndex + 6]  = B.z;
+    transformedPoints[triIndex + 7]  = smoothstep(0, 1, B.w);
+    transformedPoints[triIndex + 8]  = C.x;
+    transformedPoints[triIndex + 9]  = C.y;
+    transformedPoints[triIndex + 10] = C.z;
+    transformedPoints[triIndex + 11] = smoothstep(0, 1, C.w);
+    transformedPoints[triIndex + 12] = D.x;
+    transformedPoints[triIndex + 13] = D.y;
+    transformedPoints[triIndex + 14] = D.z;
+    transformedPoints[triIndex + 15] = smoothstep(0, 1, D.w);
+}
