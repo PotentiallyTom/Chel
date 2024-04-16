@@ -19,7 +19,7 @@ vec3 colourCode(float position)
     float R = mod(position * m + n, 1);
     float G = mod(position * (m + 3 * n) + n, 1);
     float B = mod(position * (m + 2 * n) + n, 1);
-    return vec3(R,G,B);
+    return normalize(vec3(R,G,B));
 }
 
 void main()

@@ -61,6 +61,9 @@ public class RenderWindow : GameWindow
             GL.ClearColor(0.2f,0.2f,0.2f,1.0f);
             // GL.ClearColor(1f,1f,1f,1f);
 
+            GL.BlendFunc(BlendingFactor.SrcAlpha,BlendingFactor.OneMinusSrcAlpha);
+            GL.Enable(EnableCap.Blend);
+
             vertices = @object.AsArray();     
 
             VertexBufferLength = (int)(vertices.Length * renderpack.OutputRatio);

@@ -1,6 +1,6 @@
 OutputRatio: 4.5
 AdditionalFloats: 3
 VertexShaderPath: "Shaders\\Vertex\\passthroughTriple.vert"
-FragmentShaderPath: "Shaders\\Fragment\\rgb.frag"
+FragmentShaderPath: "Shaders\\Fragment\\rgbOpacity.frag"
 ComputeShaderPath: "Shaders\\Compute\\colourTest.comp"
 PrimitiveType: Triangles

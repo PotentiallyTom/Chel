@@ -1,0 +1,6 @@
+OutputRatio: 
+AdditionalFloats: 1
+VertexShaderPath: "Shaders\\Vertex\\passthroughSingle.vert"
+FragmentShaderPath: "Shaders\\Fragment\\colourScale.frag"
+ComputeShaderPath: "Shaders\\Compute\\pointDepthColour.comp"
+PrimitiveType: Points
