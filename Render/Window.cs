@@ -84,12 +84,12 @@ public class RenderWindow : GameWindow
             GL.BindVertexArray(VertexArrayObject);
             GL.VertexAttribPointer(0,3,VertexAttribPointerType.Float, false, (3 + renderpack.AdditionalFloats) * sizeof(float), 0);
             GL.EnableVertexAttribArray(0);
+
             if(renderpack.AdditionalFloats != 0)
             {
-                GL.VertexAttribPointer(1,1,VertexAttribPointerType.Float, false, (3 + renderpack.AdditionalFloats) * sizeof(float), 3 * sizeof(float));
+                GL.VertexAttribPointer(1,renderpack.AdditionalFloats,VertexAttribPointerType.Float, false, (3 + renderpack.AdditionalFloats) * sizeof(float), 3 * sizeof(float));
                 GL.EnableVertexAttribArray(1);
             }
-
 
             compTransformLoc = GL.GetUniformLocation(computeShader.Handle, "transform");
             if(compTransformLoc == -1) throw new InvalidDataException($"Attempting to access the transform matrix in the compute shader, but it doesn't exist");

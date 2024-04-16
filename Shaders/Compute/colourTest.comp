@@ -12,21 +12,20 @@ layout(binding = 2) buffer BUFF_TransformedPoints {
 
 layout(location = 3) uniform mat4 transform;
 
-vec3 calc_normal(vec3 a, vec3 b, vec3 c)
+vec3 colourCode(float position)
 {
-    vec3 v = b - a;
-    vec3 u = c - a;
-    float x = (u.y * v.z) - (u.z - v.y);
-    float y = (u.z * v.x) - (u.x * v.z);
-    float z = (u.x * v.y) - (u.y * v.x);
-    return vec3(x,y,z);
+    float m = 0.23197531; // Random values
+    float n = 0.12345678;
+    float R = mod(position * m + n, 1);
+    float G = mod(position * (m + 3 * n) + n, 1);
+    float B = mod(position * (m + 2 * n) + n, 1);
+    return vec3(R,G,B);
 }
 
-void main(){
-    vec3 LIGHT_DIR = normalize(vec3(1,4,1));
-
+void main()
+{
     int facetIndex = int(gl_GlobalInvocationID.x) * 16;
-    int triIndex = int(gl_GlobalInvocationID.x) * 48; // 4 * 3 * (3 + 1)
+    int triIndex = int(gl_GlobalInvocationID.x) * 72; // 4 * 3 * (3 + 3)
     
     vec4 A = vec4(hyperObjectData[facetIndex], hyperObjectData[facetIndex + 1], hyperObjectData[facetIndex + 2], hyperObjectData[facetIndex + 3]);
     vec4 B = vec4(hyperObjectData[facetIndex + 4], hyperObjectData[facetIndex + 5], hyperObjectData[facetIndex + 6], hyperObjectData[facetIndex + 7]);
@@ -38,73 +37,81 @@ void main(){
     C = transform * C;
     D = transform * D;
 
-    vec3 a = vec3(A);
-    vec3 b = vec3(B);
-    vec3 c = vec3(C);
-    vec3 d = vec3(D);
+    vec3 RGB = colourCode(gl_GlobalInvocationID.x);
 
-    // abc
-    vec3 abcNorm = calc_normal(a,b,c);
-    float abcShade = abs(dot(abcNorm, LIGHT_DIR));
-    // abd
-    vec3 abdNorm = calc_normal(a,b,d);
-    float abdShade = abs(dot(abdNorm, LIGHT_DIR));
-    // acd
-    vec3 acdNorm = calc_normal(a,c,d);
-    float acdShade = abs(dot(acdNorm, LIGHT_DIR));
-    // bcd
-    vec3 bcdNorm = calc_normal(b,c,d);
-    float bcdShade = abs(dot(bcdNorm, LIGHT_DIR));
+    transformedPoints[triIndex]     = A.x;
+    transformedPoints[triIndex + 1] = A.y;
+    transformedPoints[triIndex + 2] = A.z;
+    transformedPoints[triIndex + 3] = RGB.x;
+    transformedPoints[triIndex + 4] = RGB.y;
+    transformedPoints[triIndex + 5] = RGB.z;
+    transformedPoints[triIndex + 6]  = B.x;
+    transformedPoints[triIndex + 7]  = B.y;
+    transformedPoints[triIndex + 8]  = B.z;
+    transformedPoints[triIndex + 9]  = RGB.x;
+    transformedPoints[triIndex + 10] = RGB.y;
+    transformedPoints[triIndex + 11] = RGB.z;
+    transformedPoints[triIndex + 12] = C.x;
+    transformedPoints[triIndex + 13] = C.y;
+    transformedPoints[triIndex + 14] = C.z;
+    transformedPoints[triIndex + 15] = RGB.x;
+    transformedPoints[triIndex + 16] = RGB.y;
+    transformedPoints[triIndex + 17] = RGB.z;
 
-    transformedPoints[triIndex]     = a.x;
-    transformedPoints[triIndex + 1] = a.y;
-    transformedPoints[triIndex + 2] = a.z;
-    transformedPoints[triIndex + 3] = abcShade;
-    transformedPoints[triIndex + 4] = b.x;
-    transformedPoints[triIndex + 5] = b.y;
-    transformedPoints[triIndex + 6] = b.z;
-    transformedPoints[triIndex + 7] = abcShade;
-    transformedPoints[triIndex + 8] = c.x;
-    transformedPoints[triIndex + 9] = c.y;
-    transformedPoints[triIndex + 10] = c.z;
-    transformedPoints[triIndex + 11] = abcShade;
+    transformedPoints[triIndex + 18] = A.x;
+    transformedPoints[triIndex + 19] = A.y;
+    transformedPoints[triIndex + 20] = A.z;
+    transformedPoints[triIndex + 21] = RGB.x * 0.9;
+    transformedPoints[triIndex + 22] = RGB.y * 0.9;
+    transformedPoints[triIndex + 23] = RGB.z * 0.9;
+    transformedPoints[triIndex + 24] = B.x;
+    transformedPoints[triIndex + 25] = B.y;
+    transformedPoints[triIndex + 26] = B.z;
+    transformedPoints[triIndex + 27] = RGB.x * 0.9;
+    transformedPoints[triIndex + 28] = RGB.y * 0.9;
+    transformedPoints[triIndex + 29] = RGB.z * 0.9;
+    transformedPoints[triIndex + 30] = D.x;
+    transformedPoints[triIndex + 31] = D.y;
+    transformedPoints[triIndex + 32] = D.z;
+    transformedPoints[triIndex + 33] = RGB.x * 0.9;
+    transformedPoints[triIndex + 34] = RGB.y * 0.9;
+    transformedPoints[triIndex + 35] = RGB.z * 0.9;
 
-    transformedPoints[triIndex + 12] = a.x;
-    transformedPoints[triIndex + 13] = a.y;
-    transformedPoints[triIndex + 14] = a.z;
-    transformedPoints[triIndex + 15] = abdShade;
-    transformedPoints[triIndex + 16] = d.x;
-    transformedPoints[triIndex + 17] = d.y;
-    transformedPoints[triIndex + 18] = d.z;
-    transformedPoints[triIndex + 19] = abdShade;
-    transformedPoints[triIndex + 20] = b.x;
-    transformedPoints[triIndex + 21] = b.y;
-    transformedPoints[triIndex + 22] = b.z;
-    transformedPoints[triIndex + 23] = abdShade;
+    transformedPoints[triIndex + 36] = A.x;
+    transformedPoints[triIndex + 37] = A.y;
+    transformedPoints[triIndex + 38] = A.z;
+    transformedPoints[triIndex + 39] = RGB.x * 0.8;
+    transformedPoints[triIndex + 40] = RGB.y * 0.8;
+    transformedPoints[triIndex + 41] = RGB.z * 0.8;
+    transformedPoints[triIndex + 42] = C.x;
+    transformedPoints[triIndex + 43] = C.y;
+    transformedPoints[triIndex + 44] = C.z;
+    transformedPoints[triIndex + 45] = RGB.x * 0.8;
+    transformedPoints[triIndex + 46] = RGB.y * 0.8;
+    transformedPoints[triIndex + 47] = RGB.z * 0.8;
+    transformedPoints[triIndex + 48] = D.x;
+    transformedPoints[triIndex + 49] = D.y;
+    transformedPoints[triIndex + 50] = D.z;
+    transformedPoints[triIndex + 51] = RGB.x * 0.8;
+    transformedPoints[triIndex + 52] = RGB.y * 0.8;
+    transformedPoints[triIndex + 53] = RGB.z * 0.8;
 
-    transformedPoints[triIndex + 24] = a.x;
-    transformedPoints[triIndex + 25] = a.y;
-    transformedPoints[triIndex + 26] = a.z;
-    transformedPoints[triIndex + 27] = acdShade;
-    transformedPoints[triIndex + 28] = d.x;
-    transformedPoints[triIndex + 29] = d.y;
-    transformedPoints[triIndex + 30] = d.z;
-    transformedPoints[triIndex + 31] = acdShade;
-    transformedPoints[triIndex + 32] = c.x;
-    transformedPoints[triIndex + 33] = c.y;
-    transformedPoints[triIndex + 34] = c.z;
-    transformedPoints[triIndex + 35] = acdShade;
-
-    transformedPoints[triIndex + 36] = b.x;
-    transformedPoints[triIndex + 37] = b.y;
-    transformedPoints[triIndex + 38] = b.z;
-    transformedPoints[triIndex + 39] = bcdShade;
-    transformedPoints[triIndex + 40] = d.x;
-    transformedPoints[triIndex + 41] = d.y;
-    transformedPoints[triIndex + 42] = d.z;
-    transformedPoints[triIndex + 43] = bcdShade;
-    transformedPoints[triIndex + 44] = c.x;
-    transformedPoints[triIndex + 45] = c.y;
-    transformedPoints[triIndex + 46] = c.z;
-    transformedPoints[triIndex + 47] = bcdShade;
+    transformedPoints[triIndex + 54] = B.x;
+    transformedPoints[triIndex + 55] = B.y;
+    transformedPoints[triIndex + 56] = B.z;
+    transformedPoints[triIndex + 57] = RGB.x * 0.7;
+    transformedPoints[triIndex + 58] = RGB.y * 0.7;
+    transformedPoints[triIndex + 59] = RGB.z * 0.7;
+    transformedPoints[triIndex + 60] = C.x;
+    transformedPoints[triIndex + 61] = C.y;
+    transformedPoints[triIndex + 62] = C.z;
+    transformedPoints[triIndex + 63] = RGB.x * 0.7;
+    transformedPoints[triIndex + 64] = RGB.y * 0.7;
+    transformedPoints[triIndex + 65] = RGB.z * 0.7;
+    transformedPoints[triIndex + 66] = D.x;
+    transformedPoints[triIndex + 67] = D.y;
+    transformedPoints[triIndex + 68] = D.z;
+    transformedPoints[triIndex + 69] = RGB.x * 0.7;
+    transformedPoints[triIndex + 70] = RGB.y * 0.7;
+    transformedPoints[triIndex + 71] = RGB.z * 0.7;
 }
