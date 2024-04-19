@@ -14,7 +14,7 @@ layout(location = 3) uniform mat4 transform;
 
 vec3 colourCode(float position)
 {
-    float m = 0.23197531; // Random values
+    float m = 0.23197531;
     float n = 0.12345678;
     float R = mod(position * m + n, 1);
     float G = mod(position * (m + 3 * n) + n, 1);
