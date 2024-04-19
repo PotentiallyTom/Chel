@@ -1,5 +1,8 @@
 ﻿using System.Globalization;
+using System.Reflection.Metadata;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
+using OpenTK.Graphics.ES11;
 using OpenTK.Mathematics;
 
 namespace Chel.Parse;
@@ -67,15 +70,40 @@ public class StylParser
         );
 
     }
-    public HyperObject ParseText(string data)
+    public HyperObject ParseText(string data, bool doClosureCheck = false)
     {
         IEnumerable<string> facetStrings = Regex.Matches(data, REGEX_GET_FACETS).Select(x=>x.Value);
         IEnumerable<HyperTetrahedron> tetrahedrons = facetStrings.Select(parseFacet);
+        if(doClosureCheck && !Is4Regular(tetrahedrons)) 
+        {
+            throw new InvalidDataException("Parsed Object is not closed");
+        }
         return new HyperObject(tetrahedrons);
     }
-    public HyperObject ParseFile(string filePath)
+    public HyperObject ParseFile(string filePath, bool doClosureCheck = false)
     {
         string _data = File.ReadAllText(filePath);
-        return ParseText(_data);
+        return ParseText(_data, doClosureCheck);
+    }
+
+    private static bool DoesShareFaceAndNotSame(HyperTetrahedron t1, HyperTetrahedron t2)
+    {
+        IEnumerable<Vector4> t1Vecs = new Vector4[] {t1.A, t1.B, t1.C, t1.D};
+        IEnumerable<Vector4> t2Vecs = new Vector4[] {t2.A, t2.B, t2.C, t2.D};
+        IEnumerable<(Vector4 a,Vector4 b)> CartesianProduct = 
+            from a in t1Vecs
+            from b in t2Vecs
+            select (a, b);
+
+        return CartesianProduct.Count(x=>x.a == x.b) == 3;        
+    }
+    public bool Is4Regular(IEnumerable<HyperTetrahedron> facets)
+    {
+        List<int> CountOf = new();
+        foreach(HyperTetrahedron f in facets)
+        {
+            CountOf.Add(facets.Count(x=>DoesShareFaceAndNotSame(x,f)));
+        }
+        return CountOf.Count(x=>x!=4) == 0;
     }
 }

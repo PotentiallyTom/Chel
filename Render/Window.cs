@@ -23,7 +23,7 @@ public class RenderWindow : GameWindow
             modelMatrix = Matrix4.Identity;
 
             renderpack = Renderpack.Load(renderpackPath);
-            @object = new StylParser().ParseFile(modelPath);
+            @object = new StylParser().ParseFile(modelPath, true);
         }
         Renderpack renderpack;
         int width;
