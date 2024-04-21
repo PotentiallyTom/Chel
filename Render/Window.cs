@@ -23,7 +23,7 @@ public class RenderWindow : GameWindow
             modelMatrix = Matrix4.Identity;
 
             renderpack = Renderpack.Load(renderpackPath);
-            @object = new StylParser().ParseFile(modelPath, true);
+            @object = new StylParser().ParseFile(modelPath);
         }
         Renderpack renderpack;
         int width;
@@ -163,8 +163,10 @@ public class RenderWindow : GameWindow
             GL.UniformMatrix4(vertTransformLoc, false, ref viewModelProjectMatrix);
             GL.BindVertexArray(VertexArrayObject);
 
-            GL.DrawArrays(renderpack.PrimitiveType,0,(int)(vertices.Length * renderpack.OutputRatio));
-            // GL.DrawArrays(renderpack.PrimitiveType,0,3);
+            // Divided by 3 + additionalfloats since it it iterations of the vertex attribute pointer
+            // and not the number of float values.
+            GL.DrawArrays(renderpack.PrimitiveType,0, VertexBufferLength / (3 + renderpack.AdditionalFloats));
+            
             SwapBuffers();
         }
         bool wasKeyDown = false;
