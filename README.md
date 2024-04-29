@@ -40,6 +40,22 @@ Arbitrary inputs are handled by the bottom row of the keyboard: `Z, X, V, B, N, 
 
 Additional render packs can be created using the format provided.
 
+## Project Structure
+
+* `/Models/`: Contains `styl` files that contain the object data.
+
+* `/Parse/`: Contains the `HyperObject` and `HyperTetrahedron` structs, and the code for parsing `styl` files.
+
+* `/Render/`: Contains the rendering code, and the Render Pack Parser.
+
+* `/RenderPacks/`: Contains the render pack `YAML` files
+
+* `/Shaders/`: Contains the shaders used by the render packs
+
+* `/generate_pointcloud.py`: Contains code used to generate the test data for the point cloud render pack
+
+* `/Program.cs`: Program Entry Point.
+
 ## License
 
 This software is distributed under the [MIT License](https://mit-license.org/)
