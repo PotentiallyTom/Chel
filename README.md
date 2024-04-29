@@ -6,7 +6,7 @@
 
 ## Installation
 
-To install, clone the git repo and use `dotnet build` to build from source.
+To install, clone the git repo and use `dotnet build` to build from source, the dependancies should be automatically downloaded. If not, the specific version is stored in the `Refactor.csproj` file.
 
 ## Usage
 
