@@ -1,8 +1,5 @@
 ﻿using System.Globalization;
-using System.Reflection.Metadata;
-using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
-using OpenTK.Graphics.ES11;
 using OpenTK.Mathematics;
 
 namespace Chel.Parse;

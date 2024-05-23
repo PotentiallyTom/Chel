@@ -5,7 +5,6 @@ using OpenTK.Platform.Windows;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using YamlDotNet.Core.Tokens;
 
 namespace Chel.Render;
 public class RenderWindow : GameWindow

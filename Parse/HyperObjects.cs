@@ -1,7 +1,5 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using OpenTK;
-using OpenTK.Graphics.ES20;
 using OpenTK.Mathematics;
 
 namespace Chel;
